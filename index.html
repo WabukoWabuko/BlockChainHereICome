@@ -2206,27 +2206,191 @@ for port in range(1, 1025):
 	<section id="step13">
 	<div class="section-header">
 	<h2>13. Blockchain Infrastructure Attacks</h2>
+	<p class="text-secondary">While smart contract bugs grab headlines, infrastructure attacks on blockchain nodes, consensus mechanisms, bridges, and off-chain components cause some of the largest losses (e.g., Ronin $625M, Wormhole $325M). This section dives into how attackers target the "plumbing" of blockchains: nodes, mempools, MEV, cross-chain bridges, and oracles. These are advanced, often multi-layered attacks requiring deep chain knowledge. Spend 8–12 weeks. Goal: understand chain-level vulnerabilities, detect suspicious node behavior, and analyze bridge exploits. Practice in testnets or local forks.</p>
 	</div>
+	
 	<div class="hacker-card">
 	<div class="detailed-explain">
-	<p>Node RPC attacks, mempool flooding, MEV (Miner/Maximal Extractable Value), bridge exploits (Ronin $625M, Wormhole), cross-chain message forgery.</p>
-	</div>
-	</div>
-	</section>
+	<p><strong>Key Attack Vectors – With Examples & Mitigations</strong></p>
 	
-	<!-- ======================== STEP 14 ======================== -->
-	<section id="step14">
-	<div class="section-header">
-	<h2>14. Real-World Hacking Practice</h2>
+	<div class="mt-3">
+	<strong>1. Node RPC Attacks</strong><br>
+	Exposed JSON-RPC/WS endpoints (e.g., Geth, Parity) allow attackers to query private data, send malicious transactions, or DoS.<br>
+	<strong>Famous case:</strong> Ethereum node misconfigs in 2018–2019 exposed keys, balances.<br>
+	<strong>Attack:</strong> Query eth_call, eth_getBalance, or admin_* methods on unprotected port (8545, 8546).<br>
+	<strong>Mitigation:</strong> Bind RPC to localhost, use API keys, firewall (iptables/nftables), disable admin APIs.<br>
+	<div class="terminal-block">
+	# Check for exposed RPC (recon phase)
+	nmap -p 8545,8546 target.com --script http-methods
+	
+	# Example malicious call (if unprotected)
+	curl -X POST --data '{"jsonrpc":"2.0","method":"eth_getBalance","params":["0xAddressHere","latest"],"id":1}' http://target:8545
 	</div>
-	<div class="row g-4">
-	<div class="col-md-4"><div class="hacker-card"><h5>Hack The Box</h5><p>Real machines, active directory, web, crypto. Start with Starting Point path.</p><a href="https://www.hackthebox.com/" target="_blank" class="btn btn-resource w-100">Start Free</a></div></div>
-	<div class="col-md-4"><div class="hacker-card"><h5>TryHackMe</h5><p>Guided learning paths. Complete "Complete Beginner" then "Offensive Pentesting".</p><a href="https://tryhackme.com/" target="_blank" class="btn btn-resource w-100">Free Rooms</a></div></div>
-	<div class="col-md-4"><div class="hacker-card"><h5>PortSwigger Web Academy</h5><p>Best web security labs on earth. All OWASP covered with solutions.</p><a href="https://portswigger.net/web-security" target="_blank" class="btn btn-resource w-100">Free Labs</a></div></div>
-	<div class="col-md-4"><div class="hacker-card"><h5>Code4rena</h5><p>Competitive smart contract audits. Real money for real bugs.</p><a href="https://code4rena.com/" target="_blank" class="btn btn-resource w-100">Join Audits</a></div></div>
-	<div class="col-md-4"><div class="hacker-card"><h5>Immunefi</h5><p>Highest paying bug bounties — up to $10M+ for critical blockchain bugs.</p><a href="https://immunefi.com/" target="_blank" class="btn btn-resource w-100">DeFi Bounties</a></div></div>
 	</div>
-	</section>
+	
+	<div class="mt-3">
+	<strong>2. Mempool Flooding</strong><br>
+	Attackers spam low-fee or invalid transactions to clog mempool, delaying legitimate txs or forcing miners to prioritize.<br>
+	<strong>Impact:</strong> DoS, higher fees, chain slowdown.<br>
+	<strong>Mitigation:</strong> Dynamic fee markets (EIP-1559), mempool size limits, rate limiting.<br>
+	<div class="terminal-block">
+	# Simulate mempool spam (testnet, ethical practice only)
+	for i in {1..1000}; do
+		cast send 0xDeadAddress "0x" --value 1wei --gas-price 1gwei --rpc-url http://localhost:8545
+		done
+		</div>
+		</div>
+		
+		<div class="mt-3">
+		<strong>3. MEV (Maximal Extractable Value) Attacks</strong><br>
+		Miners/validators reorder, insert, or censor txs in mempool for profit (front-running, back-running, sandwiching).<br>
+		<strong>Famous case:</strong> Uniswap sandwich attacks netting $1M+ daily in 2021–2023.<br>
+		<strong>Attack:</strong> Bot monitors mempool → submits high-gas tx to reorder.<br>
+		<strong>Mitigation:</strong> Flashbots (MEV auctions), private RPCs, commit-reveal schemes.<br>
+		<div class="terminal-block">
+		# Monitor mempool (basic, using web3.py)
+		from web3 import Web3
+		w3 = Web3(Web3.HTTPProvider('http://localhost:8545'))
+		pending = w3.eth.get_block('pending')
+		for tx in pending.transactions:
+			print(w3.eth.get_transaction(tx))
+			</div>
+			</div>
+			
+			<div class="mt-3">
+			<strong>4. Bridge Exploits</strong><br>
+			Cross-chain bridges (e.g., Ronin, Wormhole, Nomad) transfer assets between chains, often via centralized validators or weak crypto.<br>
+			<strong>Famous cases:</strong>
+			<ul class="small">
+			<li>Ronin ($625M, 2022) – Social engineering + validator key theft</li>
+			<li>Wormhole ($325M, 2022) – Signature verification bypass</li>
+			<li>Nomad ($190M, 2022) – Merkle root manipulation</li>
+			</ul>
+			<strong>Attack:</strong> Forge messages, bypass signature checks, exploit trusted validator bugs.<br>
+			<strong>Mitigation:</strong> Multisig validators, formal verification, timelocks, economic incentives.<br>
+			</div>
+			
+			<div class="mt-3">
+			<strong>5. Cross-Chain Message Forgery</strong><br>
+			Attackers forge messages between chains (e.g., fake token transfers) by exploiting weak verification or oracle trust.<br>
+			<strong>Mitigation:</strong> Cryptographic proofs (zero-knowledge, hash-locks), decentralized oracles.<br>
+			</div>
+			
+			<p><strong>Tools for Analysis & Testing</strong></p>
+			<ul class="small">
+			<li><strong>Foundry/Anvil</strong> – Fork mainnet, simulate attacks</li>
+			<li><strong>Slither</strong> – Analyze bridge contracts</li>
+			<li><strong>ethrpc</strong> – Query node endpoints</li>
+			<li><strong>Tenderly</strong> – Simulate txs, debug reverts</li>
+			<li><strong>Mev-inspect</strong> – Analyze MEV patterns</li>
+			</ul>
+			</div>
+			
+			<div class="pros-cons mt-3">
+			<strong>DO:</strong> Fork mainnet with Foundry → simulate mempool flooding or bridge message attack in a local environment.<br>
+			<strong>DON'T:</strong> Assume bridges are secure because they’re audited — review validator logic yourself.<br>
+			<strong>Pro:</strong> You can find $100k–$1M+ bugs in bridges, oracles, or node configs.<br>
+			<strong>Con:</strong> Ignoring infra = missing massive attack surfaces beyond smart contracts.
+			</div>
+			
+			<div class="mt-3">
+			<a href="https://rekt.news/leaderboard/" target="_blank" class="btn btn-resource btn-sm">Rekt Leaderboard – Study bridge hacks</a>
+			<a href="https://github.com/flashbots/mev-inspect-py" target="_blank" class="btn btn-resource btn-sm mt-2">mev-inspect – Analyze MEV attacks</a>
+			<a href="https://book.getfoundry.sh/anvil/" target="_blank" class="btn btn-resource btn-sm mt-2">Foundry Anvil – Fork & simulate attacks</a>
+			</div>
+			</div>
+			</section>
+			
+			<!-- ======================== STEP 14 ======================== -->
+			<section id="step14">
+			<div class="section-header">
+			<h2>14. Real-World Hacking Practice</h2>
+			<p class="text-secondary">This is where you tie everything together: programming, networking, Linux, web, crypto, blockchain, RE, and exploits. Real-world practice platforms simulate production systems (web apps, AD, IoT, DeFi) with escalating difficulty. Start free, move to paid if serious. Compete, write reports, build a portfolio. Spend 12–24 weeks cycling through platforms. Goal: hack like a pro, document like a pentester, think like an attacker. This is your launchpad to bug bounties, CTFs, or red team gigs.</p>
+			</div>
+			
+			<div class="row g-4">
+			
+			<div class="col-md-4">
+			<div class="hacker-card">
+			<h5>Hack The Box (HTB)</h5>
+			<p>Realistic machines: Active Directory, web apps, crypto, pwn, IoT. Start with "Starting Point" (free) → move to retired boxes. Excellent for CTF prep and pentest skills.</p>
+			<p><strong>Pro tip:</strong> Write detailed writeups for every box you root — builds portfolio.</p>
+			<div class="pros-cons mt-3">
+			<strong>DO:</strong> Start with easy Linux boxes → progress to Windows AD.<br>
+			<strong>DON'T:</strong> Spoil solutions — enumerate manually first.
+			</div>
+			<div class="mt-3">
+			<a href="https://www.hackthebox.com/" target="_blank" class="btn btn-resource w-100">HTB – Start Free</a>
+			<a href="https://academy.hackthebox.com/" target="_blank" class="btn btn-resource w-100 mt-2">HTB Academy – Guided modules</a>
+			</div>
+			</div>
+			</div>
+			
+			<div class="col-md-4">
+			<div class="hacker-card">
+			<h5>TryHackMe (THM)</h5>
+			<p>Guided learning with beginner-friendly paths. Covers web, Linux, Windows, networking, crypto. Start with "Complete Beginner" → "Offensive Pentesting" → "Red Teaming".</p>
+			<p><strong>Pro tip:</strong> Use THM’s browser-based Kali VM for quick setup.</p>
+			<div class="pros-cons mt-3">
+			<strong>DO:</strong> Complete at least 10 free rooms before subscribing.<br>
+			<strong>DON'T:</strong> Rush — understand every step.
+			</div>
+			<div class="mt-3">
+			<a href="https://tryhackme.com/" target="_blank" class="btn btn-resource w-100">THM – Free Rooms</a>
+			<a href="https://tryhackme.com/paths" target="_blank" class="btn btn-resource w-100 mt-2">THM Learning Paths</a>
+			</div>
+			</div>
+			</div>
+			
+			<div class="col-md-4">
+			<div class="hacker-card">
+			<h5>PortSwigger Web Security Academy</h5>
+			<p>Best free web security labs on earth. Covers OWASP Top 10 (XSS, SQLi, IDOR, SSRF, etc.) with detailed solutions. Burp Suite integration.</p>
+			<p><strong>Pro tip:</strong> Solve every lab manually in Burp Repeater before checking answers.</p>
+			<div class="pros-cons mt-3">
+			<strong>DO:</strong> Complete XSS + SQLi labs first — most common in bounties.<br>
+			<strong>DON'T:</strong> Skip CSRF or SSRF — they pay big.
+			</div>
+			<div class="mt-3">
+			<a href="https://portswigger.net/web-security" target="_blank" class="btn btn-resource w-100">PortSwigger – Free Labs</a>
+			</div>
+			</div>
+			</div>
+			
+			<div class="col-md-4">
+			<div class="hacker-card">
+			<h5>Code4rena</h5>
+			<p>Competitive smart contract audits for real DeFi protocols. Earn $1k–$500k+ for critical findings. Study past reports to learn audit mindset.</p>
+			<p><strong>Pro tip:</strong> Start by shadowing contests (review findings post-contest).</p>
+			<div class="pros-cons mt-3">
+			<strong>DO:</strong> Audit at least 3 past contests before joining live.<br>
+			<strong>DON'T:</strong> Submit low-severity bugs — focus on critical.
+			</div>
+			<div class="mt-3">
+			<a href="https://code4rena.com/" target="_blank" class="btn btn-resource w-100">Code4rena – Join Audits</a>
+			<a href="https://code4rena.com/reports" target="_blank" class="btn btn-resource w-100 mt-2">Code4rena Past Reports</a>
+			</div>
+			</div>
+			</div>
+			
+			<div class="col-md-4">
+			<div class="hacker-card">
+			<h5>Immunefi</h5>
+			<p>Highest-paying bug bounties for blockchain (smart contracts, bridges, wallets). Payouts $10k–$10M+ for critical bugs. Requires strong contract + infra skills.</p>
+			<p><strong>Pro tip:</strong> Focus on new/small protocols for easier bugs.</p>
+			<div class="pros-cons mt-3">
+			<strong>DO:</strong> Read every Immunefi program scope carefully.<br>
+			<strong>DON'T:</strong> Mass-scan — targeted manual testing wins.
+			</div>
+			<div class="mt-3">
+			<a href="https://immunefi.com/" target="_blank" class="btn btn-resource w-100">Immunefi – DeFi Bounties</a>
+			<a href="https://immunefi.com/learn" target="_blank" class="btn btn-resource w-100 mt-2">Immunefi Learn – Bug hunting tips</a>
+			</div>
+			</div>
+			</div>
+			
+			</div>
+			</section>
 	
 	<!-- ======================== STEP 15 ======================== -->
 	<section id="step15">
