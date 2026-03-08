@@ -430,3 +430,79 @@ graph LR
     V5_R2 -.-> V5_X3
     V5_T1 -.-> V5_X4
 ```
+
+```mermaid
+graph LR
+    %% --- Theme & Styles (V6 Specific) ---
+    classDef v6_core fill:#00b4d8,stroke:#000,color:#000,stroke-width:3px;
+    classDef v6_layer fill:#caf0f8,stroke:#0077b6,color:#000,stroke-width:1px;
+    classDef v6_comp fill:#0077b6,stroke:#03045e,color:#fff,stroke-width:1px;
+    classDef v6_tool fill:#90e0ef,stroke:#0077b6,color:#000,stroke-width:1px;
+    classDef v6_vuln fill:#6a040f,stroke:#d00000,color:#fff,stroke-width:2px;
+
+    %% --- Central Hub ---
+    V6_ROOT((<b>VOLUME 6:<br/>The Auditor's Methodology</b>)):::v6_core
+
+    %% --- BRANCH 1: Reconnaissance & Scoping ---
+    V6_ROOT --- V6_RECON[<b>I. Recon & Preparation</b>]:::v6_layer
+    V6_RECON --> V6_R1(Documentation Review):::v6_comp
+    V6_R1 --> V6_R1_1[Whitepaper Analysis]
+    V6_R1_2[Technical Spec & Flowcharts]
+    
+    V6_RECON --> V6_R2(Environment Setup):::v6_comp
+    V6_R2 --> V6_R2_1["Tooling: Foundry / Hardhat"]:::v6_tool
+    V6_R2_2["Dev Environment: Neovim / VS Code"]:::v6_tool
+    V6_R2_3[Local Chain Forking: Anvil / Ganache]:::v6_tool
+
+    %% --- BRANCH 2: Static Analysis (Automated) ---
+    V6_ROOT --- V6_STATIC[<b>II. Static Analysis</b>]:::v6_layer
+    V6_STATIC --> V6_S1(Security Tooling):::v6_comp
+    V6_S1 --> V6_S1_1["Slither: Vulnerability Detection"]:::v6_tool
+    V6_S1_2["Aderyn: Rust-based Static Analysis"]:::v6_tool
+    V6_S1_3["Solhint: Linter & Best Practices"]:::v6_tool
+
+    V6_STATIC --> V6_S2(Graphing & Visualization):::v6_comp
+    V6_S2 --> V6_S2_1["Surya: Function Call Graphs"]:::v6_tool
+    V6_S2_2[Solidity Visual Auditor]:::v6_tool
+
+    %% --- BRANCH 3: Manual Code Review ---
+    V6_ROOT --- V6_MANUAL[<b>III. Manual Code Review</b>]:::v6_layer
+    V6_MANUAL --> V6_M1(Top-Down Analysis):::v6_comp
+    V6_M1 --> V6_M1_1[Entry Point: External/Public Functions]
+    V6_M1_2[State Transitions: SSTORE Analysis]
+    
+    V6_MANUAL --> V6_M2(Logic Verification):::v6_comp
+    V6_M2 --> V6_M2_1[Access Control: Modifiers check]
+    V6_M2_2[Math Safety: Overflows/Rounding]
+    V6_M2_3[External Calls: Reentrancy checks]
+
+    %% --- BRANCH 4: Dynamic Analysis (Testing) ---
+    V6_ROOT --- V6_DYN[<b>IV. Dynamic Testing</b>]:::v6_layer
+    V6_DYN --> V6_D1(Fuzzing):::comp
+    V6_D1 --> V6_D1_1["Echidna: Property-based Fuzzing"]:::v6_tool
+    V6_D1_2["Foundry: Invariant Testing"]:::v6_tool
+    
+    V6_DYN --> V6_D2(Exploit Development):::v6_comp
+    V6_D2 --> V6_D2_1[PoC Development: Hardhat/Foundry]
+    V6_D2_2[Mainnet Forking: Testing against live state]
+
+    %% --- BRANCH 5: Reporting & Disclosure ---
+    V6_ROOT --- V6_REPORT[<b>V. Finalization</b>]:::v6_layer
+    V6_REPORT --> V6_P1(Severity Classification):::v6_comp
+    V6_P1 --> V6_P1_1[High: Direct loss of funds]:::v6_vuln
+    V6_P1_2[Medium: Logic error / Protocol grief]
+    V6_P1_3[Low/Gas: Optimization / Non-critical]
+
+    V6_REPORT --> V6_P2(Reporting):::v6_comp
+    V6_P2 --> V6_P2_1[Description & Impact]
+    V6_P2_2[Proof of Concept - PoC]
+    V6_P2_3[Recommended Remediation]
+
+    %% --- THE AUDIT LOOP ---
+    subgraph V6_AuditPipeline [The Auditor's Daily Workflow]
+        V6_Step1[1. Understand System Goals] --> V6_Step2[2. Run Static Analysis]
+        V6_Step2 --> V6_Step3[3. Manual Line-by-Line Review]
+        V6_Step3 --> V6_Step4[4. Write Invariant Tests/Fuzzers]
+        V6_Step4 --> V6_Step5[5. Draft & Submit Report]
+    end
+```
