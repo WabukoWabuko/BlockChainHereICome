@@ -2855,24 +2855,146 @@ for port in range(1, 1025):
 	<!-- ======================== STEP 20 ======================== -->
 	<section id="step20">
 	<div class="section-header">
-	<h2>20. Ethics &amp; Law</h2>
+	<h2>20. Ethics &amp; Law – The Line Between White Hat & Felony</h2>
+	<p class="text-secondary">Skills without ethics and legal awareness can destroy lives — including your own. Every year, talented hackers go to prison because they crossed invisible (but very real) lines. This final section is non-technical but non-negotiable. It covers responsible disclosure, major laws (2026 landscape), ethical frameworks, career paths, and real-world consequences. Read it carefully. Internalize it. Re-read it every few months. Your future freedom, reputation, and impact depend on it. Goal: become the kind of researcher companies trust, platforms invite, and communities respect — not the kind featured in "hacker arrested" headlines.</p>
 	</div>
+	
 	<div class="hacker-card">
 	<div class="detailed-explain">
-	<p><strong>Responsible Disclosure:</strong> Give vendors 90 days (or agreed timeline) before public release.<br>
-	<strong>Laws:</strong> CFAA (US), Computer Misuse Act (UK), GDPR fines, local cybercrime laws.<br>
-	<strong>Golden Rule:</strong> If you don’t have explicit written permission, it is illegal. Period.</p>
+	<p><strong>1. Responsible Disclosure – The Gold Standard (2026 Best Practices)</strong></p>
+	<ul class="small">
+	<li><strong>Timeline</strong>: 90 days is the global norm (Google, Microsoft, Apple standard). Blockchain/DeFi: often 30–60 days due to funds at risk — check Immunefi/Code4rena rules.</li>
+	<li><strong>Process</strong>:
+	<ol>
+	<li>Discover → document privately (screenshots, video, PoC code)</li>
+	<li>Contact vendor/platform securely (PGP if available, dedicated security@ or bugbounty@ email)</li>
+	<li>Provide clear, reproducible steps + impact assessment</li>
+	<li>Negotiate timeline if urgent (active exploit in wild = immediate disclosure)</li>
+	<li>Wait for fix + reasonable grace period before public write-up</li>
+	<li>Publish coordinated disclosure (blog, tweet, conference talk)</li>
+	</ol>
+	</li>
+	<li><strong>Never</strong>: Publish exploit before fix, sell to black market, use for personal gain, brag on social media pre-disclosure.</li>
+	<li><strong>Best resources</strong>: CERT Guide, ISO 29147, HackerOne Disclosure Guidelines.</li>
+	</ul>
+	
+	<div class="mt-4">
+	<strong>2. Major Laws & Consequences (Global 2026 Snapshot)</strong><br>
+	<table class="table table-sm table-dark mt-2">
+	<thead>
+	<tr><th>Jurisdiction</th><th>Key Law</th><th>What It Covers</th><th>Max Penalty (approx.)</th><th>Real Cases (recent)</th></tr>
+	</thead>
+	<tbody>
+	<tr><td>United States</td><td>CFAA (18 U.S.C. § 1030)</td><td>Unauthorized access, exceeding authorization, damage</td><td>10–20 years prison + fines</td><td>Aaron Swartz (2013), various ransomware operators (2024–2025)</td></tr>
+	<tr><td>United Kingdom</td><td>Computer Misuse Act 1990 (amended 2022)</td><td>Unauthorized access, impairment, supply of tools</td><td>Up to life (serious cases)</td><td>Multiple young hackers jailed 2024–2025 for DDoS-for-hire</td></tr>
+	<tr><td>European Union</td><td>Directive (EU) 2013/40 + GDPR</td><td>Illegal access, data breaches</td><td>Prison + GDPR fines up to €20M / 4% revenue</td><td>Multiple ransomware + data leak fines 2025</td></tr>
+	<tr><td>China</td><td>Cybersecurity Law + Criminal Law</td><td>Illegal intrusion, data theft</td><td>3–7 years + fines</td><td>State-sponsored actors prosecuted domestically</td></tr>
+	<tr><td>International</td><td>Budapest Convention on Cybercrime</td><td>Harmonized offenses (most countries signed)</td><td>Varies by country</td><td>Extraditions increasing (e.g., US–EU cases 2025)</td></tr>
+	</tbody>
+	</table>
+	<p class="small mt-2 text-warning">Key takeaway: "I was just testing" or "I didn't cause damage" is NOT a defense under CFAA/CMA. Intent + unauthorized access = crime.</p>
 	</div>
-	<p class="text-danger fw-bold">NEVER test on production systems without authorization. Your skills are a superpower — use them for good.</p>
+	
+	<div class="mt-4">
+	<strong>3. Ethical Frameworks & Golden Rules</strong><br>
+	<ul class="small">
+	<li><strong>Golden Rule #1</strong>: If you do not have explicit written permission (bug bounty program scope, signed contract), it is illegal — full stop.</li>
+	<li><strong>Golden Rule #2</strong>: Never test on production/live systems without authorization — even "just looking" can trigger IDS/monitoring.</li>
+	<li><strong>Golden Rule #3</strong>: Never keep, use, sell, or publish stolen data/exploits — responsible disclosure only.</li>
+	<li><strong>Golden Rule #4</strong>: If in doubt — ask a lawyer or trusted mentor before acting.</li>
+	</ul>
+	
+	<p><strong>Ethical Codes to Follow</strong></p>
+	<ul class="small">
+	<li>EC-Council Code of Ethics</li>
+	<li>(ISC)² Code of Ethics</li>
+	<li>HackerOne/Minimum Viable Disclosure Guidelines</li>
+	<li>OWASP Responsible Disclosure Guidelines</li>
+	</ul>
+	</div>
+	
+	<div class="mt-4">
+	<strong>4. Career Paths – White Hat Options (2026)</strong><br>
+	<ul class="small">
+	<li>Bug bounty full-time (Immunefi, HackerOne top earners)</li>
+	<li>Security researcher / exploit dev (Google Project Zero, Microsoft, Paradigm)</li>
+	<li>Smart contract auditor (Trail of Bits, OpenZeppelin, Certora, Spearbit)</li>
+	<li>Red team / pentester (consulting firms, in-house at banks/tech)</li>
+	<li>Threat intelligence / blockchain investigator (Chainalysis, Elliptic, ZachXBT-style independent)</li>
+	<li>Tool developer / open-source contributor (Foundry, Slither, Ghidra plugins)</li>
+	</ul>
+	<p class="small mt-2">Most high-earners combine bounties + audits + speaking + consulting. Reputation > short-term cash.</p>
+	</div>
+	
+	<p class="text-danger fw-bold mt-4">
+	NEVER test on production systems without explicit written authorization.<br>
+	Your skills are a superpower — use them to protect, not destroy.<br>
+	The world needs more builders and defenders than breakers.
+	</p>
+	</div>
+	
+	<div class="pros-cons mt-3">
+	<strong>DO:</strong> Join bug bounty programs with clear scope → read every word of policy → document everything → be patient and professional.<br>
+	<strong>DON'T:</strong> Ever rationalize "just testing", "no damage", or "they deserved it" — courts don't care.<br>
+	<strong>Pro:</strong> Ethical path = long career, respect, high earnings, freedom.<br>
+	<strong>Con:</strong> Crossing the line = prison, ruined future, no second chances in most jurisdictions.
+	</div>
+	
+	<div class="mt-4">
+	<a href="https://www.hackerone.com/disclosure-guidelines" target="_blank" class="btn btn-resource btn-sm">HackerOne Responsible Disclosure Guidelines</a>
+	<a href="https://www.justice.gov/criminal-ccips/computer-fraud-and-abuse-act-cfaa" target="_blank" class="btn btn-resource btn-sm mt-2">US DOJ CFAA Overview (2026 version)</a>
+	<a href="https://www.ncsc.gov.uk/collection/responsible-disclosure" target="_blank" class="btn btn-resource btn-sm mt-2">UK NCSC Responsible Disclosure Guidance</a>
+	<a href="https://immunefi.com/ethics-policy/" target="_blank" class="btn btn-resource btn-sm mt-2">Immunefi Ethics Policy – Blockchain-specific</a>
+	</div>
 	</div>
 	</section>
 	
 	<footer class="text-center py-5 text-secondary small border-top border-secondary mt-5">
-	<hr>
-	Complete 2026 Hacker &amp; Blockchain Security Guru Roadmap<br>
-	Every single item from your list is now covered with deep explanations, multiple code examples, pros/cons, DO/DON'T lists, and direct high-quality links.<br>
-	This is a world-class, self-contained guide. Save it. Study it. Execute.<br>
-	Persistence beats brilliance. Now go become unstoppable.
+	<div class="container">
+	<hr class="mb-4">
+	
+	<h5 class="fw-bold text-info mb-3">Ultimate 2026 Hacker & Blockchain Security Guru Roadmap</h5>
+	<p class="lead mb-4">
+	From absolute zero to elite-level mastery: foundations → programming → networking → web → crypto → reverse engineering → exploits → blockchain → smart contract auditing → real-world hunting → ethical research.
+	</p>
+	
+	<p class="mb-4">
+	Every topic deeply explained • multiple real code examples • pros/cons • clear DO/DON'T guidance • high-quality 2026-relevant resources • built for serious learners who want to become unstoppable.
+	</p>
+	
+	<p class="fw-bold text-warning mb-4">
+	Save this guide. Study it daily. Execute relentlessly.<br>
+	Persistence beats brilliance — now go break (legally), protect, and contribute.
+	</p>
+	
+	<div class="row justify-content-center mt-5">
+	<div class="col-12 col-md-8 col-lg-6">
+	<div class="card bg-dark border-info shadow-sm">
+	<div class="card-body">
+	<h6 class="text-info fw-bold mb-3">Created by Wabuko Wabuko</h6>
+	<div class="d-flex flex-wrap justify-content-center gap-3 mb-3">
+	<a href="https://wabuko-portfolio.vercel.app" target="_blank" class="btn btn-outline-info btn-sm">
+	<i class="bi bi-globe"></i> Portfolio
+	</a>
+	<a href="mailto:basilwabbs@gmail.com" class="btn btn-outline-info btn-sm">
+	<i class="bi bi-envelope"></i> basilwabbs@gmail.com
+	</a>
+	<a href="tel:+254740750403" class="btn btn-outline-info btn-sm">
+	<i class="bi bi-telephone"></i> +254 740 750 403
+	</a>
+	</div>
+	<p class="text-muted small mb-0">
+	Designed & researched for serious learners • March 2026 edition
+	</p>
+	</div>
+	</div>
+	</div>
+	</div>
+	
+	<p class="mt-5 text-muted small">
+	Use your power responsibly. The world needs more builders and defenders than breakers.
+	</p>
+	</div>
 	</footer>
 	
 	</main>
