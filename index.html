@@ -2396,20 +2396,117 @@ for port in range(1, 1025):
 	<section id="step15">
 	<div class="section-header">
 	<h2>15. Bug Bounty Hunting</h2>
+	<p class="text-secondary">Bug bounty hunting is where your skills turn into real money — and reputation. Platforms pay for real vulnerabilities in live systems (web, mobile, APIs, blockchain, infrastructure). The best hunters combine deep technical knowledge, creativity, persistence, and excellent reporting. Many full-time hunters earn six figures; top blockchain bugs pay $1M+. This section teaches platforms, strategy, process, reporting, and mindset. Spend 8–16 weeks hunting actively. Goal: submit your first valid report, get your first payout, build a public profile. Start small, scale up.</p>
 	</div>
+	
 	<div class="row g-4">
+	
+	<!-- Platforms & Strategy -->
 	<div class="col-md-6">
 	<div class="hacker-card">
-	<h5>Platforms &amp; Strategy</h5>
-	<p>HackerOne, Bugcrowd, Intigriti, YesWeHack, Immunefi. Start with low-hanging fruit, write excellent reports with clear PoC videos.</p>
+	<h5>Major Platforms & Hunting Strategy (2026 Landscape)</h5>
+	
+	<div class="detailed-explain">
+	<p><strong>Top Platforms – Where the Money Is</strong></p>
+	<ul class="small">
+	<li><strong>HackerOne</strong> – Largest, most corporate targets (Google, Apple, PayPal, Verizon). High competition, good payouts for criticals.</li>
+	<li><strong>Bugcrowd</strong> – Strong VDP + paid programs. Great for beginners (public programs), excellent triage & support.</li>
+	<li><strong>Intigriti</strong> – Europe-focused, high-quality programs, fast payouts, growing fast in 2026.</li>
+	<li><strong>YesWeHack</strong> – Strong European & global presence, good for web/mobile.</li>
+	<li><strong>Immunefi</strong> – Blockchain/DeFi king. Highest payouts ever ($10M+ criticals). Focus on smart contracts, bridges, wallets.</li>
+	<li><strong>HackenProof</strong> – Blockchain & Web3 heavy, good for mid-tier hunters.</li>
+	</ul>
+	
+	<p><strong>2026 Strategy – How Winners Hunt</strong></p>
+	<ol class="small">
+	<li><strong>Choose wisely</strong>: Start with public programs → low competition → low-hanging fruit (XSS, IDOR, open redirects).</li>
+	<li><strong>Recon first</strong>: Subdomain enum (Amass, Sublist3r), asset discovery (Shodan, Censys), GitHub dorks, JS analysis.</li>
+	<li><strong>Focus niches</strong>: Pick one area (web API, GraphQL, blockchain, mobile) and go deep — specialization wins.</li>
+	<li><strong>Automate smartly</strong>: Nuclei, Burp macros, custom scripts — but manual testing finds the big bugs.</li>
+	<li><strong>Report quality</strong>: Clear title, steps-to-reproduce, impact (CVSS), PoC video/screenshots, remediation suggestion.</li>
+	<li><strong>Track everything</strong>: Notion/Excel – programs hunted, bugs found, responses, payouts.</li>
+	</ol>
+	</div>
+	
+	<div class="pros-cons mt-3">
+	<strong>DO:</strong> Hunt 3–5 programs per week. Write reports even for duplicates — improves writing & gets triaged faster.<br>
+	<strong>DON'T:</strong> Mass-report low-severity bugs or spam programs — ruins reputation.<br>
+	<strong>Pro:</strong> First $1k–$10k payout builds confidence; portfolio grows fast.<br>
+	<strong>Con:</strong> Poor reporting = rejected high-impact bugs, wasted time.
+	</div>
+	
+	<div class="mt-3">
+	<a href="https://hackerone.com/directory/programs" target="_blank" class="btn btn-resource btn-sm">HackerOne Directory – Filter public programs</a>
+	<a href="https://immunefi.com/explore/" target="_blank" class="btn btn-resource btn-sm mt-2">Immunefi Explore – Blockchain bounties</a>
+	<a href="https://www.bugcrowd.com/programs/" target="_blank" class="btn btn-resource btn-sm mt-2">Bugcrowd Programs – Start here</a>
 	</div>
 	</div>
+	</div>
+	
+	<!-- Process & Reporting -->
 	<div class="col-md-6">
 	<div class="hacker-card">
-	<h5>Process</h5>
-	<p>1. Recon → 2. Vulnerability discovery → 3. Impact assessment → 4. PoC writing → 5. Responsible disclosure → 6. Negotiation &amp; payout.</p>
+	<h5>The Bug Bounty Process – Step-by-Step (Winning Formula)</h5>
+	
+	<div class="detailed-explain">
+	<p><strong>1. Recon & Scope</strong><br>
+	Read program rules carefully (in-scope assets, out-of-scope, safe harbor). Enumerate subdomains, APIs, mobile apps, cloud buckets. Tools: Amass, Sublist3r, Gau, httpx, Aquatone.</p>
+	
+	<p><strong>2. Vulnerability Discovery</strong><br>
+	Manual testing (Burp, ZAP) + automation (Nuclei, Dalfox for XSS). Focus on business logic (IDOR, auth bypass, race conditions), API endpoints, GraphQL introspection.</p>
+	
+	<p><strong>3. Impact Assessment</strong><br>
+	Prove real harm: account takeover, data leak, fund theft, RCE. Use CVSS calculator. Blockchain: estimate stolen funds (e.g., flash loan profit).</p>
+	
+	<p><strong>4. PoC Writing</strong><br>
+	Steps-to-reproduce: numbered, clear, reproducible. Include screenshots/videos (Loom, OBS). For blockchain: Foundry test or tx hash.</p>
+	
+	<p><strong>5. Responsible Disclosure</strong><br>
+	Submit via platform. Be polite, patient. Follow program timeline (90 days typical). Never publish before fix.</p>
+	
+	<p><strong>6. Negotiation & Payout</strong><br>
+	Justify severity/impact. Accept fair offers. Build relationship with triagers — repeat good hunters get priority.</p>
+	</div>
+	
+	<div class="terminal-block">
+	# Example Nuclei template for IDOR recon (save as idor.yaml)
+	id: idor-example
+	
+	info:
+	name: Potential IDOR
+	severity: medium
+	
+	http:
+	- method: GET
+	path:
+	- "{{BaseURL}}/api/users/1"
+	- "{{BaseURL}}/api/users/2"
+	
+	matchers-condition: and
+	matchers:
+	- type: status
+	status:
+	- 200
+	- type: word
+	words:
+	- "user_id"
+	- "email"
+	</div>
+	
+	<div class="pros-cons mt-3">
+	<strong>DO:</strong> Record every hunt session (video/audio) — helps write reports later.<br>
+	<strong>DON'T:</strong> Submit without verifying impact — triagers reject "theoretical" bugs.<br>
+	<strong>Pro:</strong> Excellent reports = higher payouts, faster triage, invitations to private programs.<br>
+	<strong>Con:</strong> Sloppy process = rejected bugs, burnout, no invites.
+	</div>
+	
+	<div class="mt-3">
+	<a href="https://bugbountyhunter.com/" target="_blank" class="btn btn-resource btn-sm">Bug Bounty Hunter Methodology – Practical guide</a>
+	<a href="https://portswigger.net/research/how-to-write-a-bug-bounty-report" target="_blank" class="btn btn-resource btn-sm mt-2">PortSwigger – How to Write Excellent Reports</a>
 	</div>
 	</div>
+	</div>
+	
 	</div>
 	</section>
 	
@@ -2417,11 +2514,65 @@ for port in range(1, 1025):
 	<section id="step16">
 	<div class="section-header">
 	<h2>16. Security Research</h2>
+	<p class="text-secondary">This is the elite level: discovering new classes of vulnerabilities, writing original exploits, publishing research, presenting at conferences, and contributing to the security community. Top researchers get named in CVEs, speak at Black Hat/DEF CON, consult for governments/companies, and earn serious money. This stage requires originality, deep knowledge, persistence, and communication. Start small: reproduce bugs, write blog posts, submit CVEs. Spend 12+ months actively researching. Goal: publish your first paper/exploit, get a CVE, speak at a conference, or contribute to major tools.</p>
 	</div>
+	
 	<div class="hacker-card">
-	<p class="detailed-explain">Publish on arXiv, present at Black Hat / DEF CON / REcon. Follow researchers: @samczsun, @trailofbits, @zachxbt, @0xfoobar. Start writing your own exploits and submitting to CVE.</p>
+	<div class="detailed-explain">
+	<p><strong>Path to Becoming a Security Researcher (2026 Reality)</strong></p>
+	
+	<ol class="small">
+	<li><strong>Master fundamentals</strong>: All previous steps (programming, RE, exploits, crypto, blockchain).</li>
+	<li><strong>Reproduce & extend existing bugs</strong>: Take public PoCs → find variants → write better exploits.</li>
+	<li><strong>Find 0-days in open-source</strong>: Audit popular libraries (npm, PyPI, Rust crates), submit patches + CVE.</li>
+	<li><strong>Target emerging tech</strong>: Web3 (new EIPs, L2s), AI models (prompt injection, model stealing), IoT firmware, cloud misconfigs.</li>
+	<li><strong>Write & publish</strong>:
+	<ul>
+	<li>Blog (Medium, personal site, HackMD)</li>
+	<li>arXiv (preprints for crypto/RE)</li>
+	<li>Conference CFP: Black Hat, DEF CON, REcon, USENIX Security, Chaos Communication Congress</li>
+	</ul>
+	</li>
+	<li><strong>Follow & network with top researchers</strong>:
+	<ul class="small">
+	<li>@samczsun – Ethereum exploits, MEV</li>
+	<li>@trailofbits – Tooling, audits, blog</li>
+	<li>@zachxbt – On-chain investigations</li>
+	<li>@0xfoobar – DeFi, MEV</li>
+	<li>@gakonst (Paradigm) – Foundry, Rust</li>
+	<li>@liveoverflow – Binary exploitation</li>
+	</ul>
+	</li>
+	<li><strong>Contribute to tools</strong>: pwntools, Foundry, Slither, Ghidra plugins, Radare2.</li>
+	<li><strong>Submit CVEs</strong>: Via MITRE, vendor, or platforms like HackerOne (many accept 0-days).</li>
+	</ol>
+	
+	<p><strong>Key Skills to Build</strong></p>
+	<ul class="small">
+	<li>Technical writing: clear, reproducible, impactful</li>
+	<li>Proof-of-concept exploits: reliable, well-documented</li>
+	<li>Threat modeling: STRIDE, attack trees</li>
+	<li>Formal methods: symbolic execution (angr, Manticore), fuzzing (AFL++, libFuzzer)</li>
+	</ul>
 	</div>
-	</section>
+	
+	<div class="terminal-block">
+	# Example: Simple CVE-style report skeleton
+	Title: [Product] [Vuln Type] in [Component] (e.g., Buffer Overflow in Parser)
+	
+	Description:
+	Detailed explanation of root cause, affected versions.
+	
+	Steps to Reproduce:
+	1. ...
+	2. ...
+	
+	Impact:
+	CVSS score, real-world consequences.
+	
+	PoC:
+	```python
+	# Exploit code here
 	
 	<!-- ======================== STEP 17 ======================== -->
 	<section id="step17">
