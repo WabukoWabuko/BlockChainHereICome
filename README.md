@@ -349,3 +349,84 @@ graph LR
     V4_P1 -.-> V4_X2
     V4_C3 -.-> V4_X3
 ```
+
+```mermaid
+graph LR
+    %% --- Theme & Styles (V5 Specific) ---
+    classDef v5_core fill:#ff006e,stroke:#fff,color:#fff,stroke-width:3px;
+    classDef v5_layer fill:#3a0ca3,stroke:#fff,color:#fff,stroke-width:1px;
+    classDef v5_comp fill:#4361ee,stroke:#fff,color:#fff,stroke-width:1px;
+    classDef v5_infra fill:#4cc9f0,stroke:#000,color:#000,stroke-width:1px;
+    classDef v5_vuln fill:#6a040f,stroke:#d00000,color:#fff,stroke-width:2px;
+
+    %% --- Central Hub ---
+    V5_ROOT((<b>VOLUME 5:<br/>Infrastructure & Bridges</b>)):::v5_core
+
+    %% --- BRANCH 1: Cross-Chain Architectures ---
+    V5_ROOT --- V5_ARCH[<b>I. Bridge Architectures</b>]:::v5_layer
+    V5_ARCH --> V5_Type(Bridge Models):::v5_comp
+    V5_Type --> V5_T1["Lock-and-Mint: Escrow on L1, Mint on L2"]
+    V5_Type --> V5_T2["Burn-and-Redeem: Native Asset Swap"]
+    V5_Type --> V5_T3["Liquidity Networks: Atomic Swaps"]
+
+    V5_ARCH --> V5_Verify(Verification Methods):::v5_comp
+    V5_Verify --> V5_V1["Native: Light Client on-chain"]
+    V5_Verify --> V5_V2["External: Multi-sig / Validator Set"]
+    V5_Verify --> V5_V3["Optimistic: Fraud Proof window"]
+
+    V5_ARCH --- V5_V_ARCH[<i>Bridge Loopholes</i>]:::v5_vuln
+    V5_V_ARCH --> V5_V_Mint(Infinite Mint Exploit)
+    V5_V_ARCH --> V5_V_Proof(Faulty Merkle Proof Validation)
+
+    %% --- BRANCH 2: Off-Chain Components (Relayers) ---
+    V5_ROOT --- V5_OFF[<b>II. Relayers & Listeners</b>]:::v5_layer
+    V5_OFF --> V5_Role(Operational Roles):::v5_comp
+    V5_Role --> V5_R1[Event Listeners: Scanning Logs]
+    V5_Role --> V5_R2[Message Passing: Cross-chain data]
+    V5_Role --> V5_R3[Signature Aggregators]
+
+    V5_OFF --- V5_V_OFF[<i>Relayer Loopholes</i>]:::v5_vuln
+    V5_V_OFF --> V5_V_Sig(Signature Forgery)
+    V5_V_OFF --> V5_V_Key(Relayer Private Key Theft)
+    V5_V_OFF --> V5_V_Admin(Admin/Owner Account Takeover)
+
+    %% --- BRANCH 3: Scaling & L2 Infrastructure ---
+    V5_ROOT --- V5_L2[<b>III. Layer 2 & Rollups</b>]:::v5_layer
+    V5_L2 --> V5_Roll(Rollup Types):::v5_comp
+    V5_Roll --> V5_RL1[Optimistic: Arbitrum/Optimism]
+    V5_Roll --> V5_RL2[zk-Rollup: ZKSync/Starknet]
+
+    V5_L2 --> V5_Seq(Sequencer Node):::v5_comp
+    V5_Seq --> V5_S1[Batch Submission to L1]
+    V5_Seq --> V5_S2[Transaction Ordering]
+
+    V5_L2 --- V5_V_L2[<i>Scaling Loopholes</i>]:::v5_vuln
+    V5_V_L2 --> V5_V_L2C(Sequencer Centralization/Censorship)
+    V5_V_L2 --> V5_V_Exit(L2 Withdrawal/Exit Scams)
+
+    %% --- BRANCH 4: Web3 Infrastructure ---
+    V5_ROOT --- V5_WEB3[<b>IV. Nodes & RPC Providers</b>]:::v5_layer
+    V5_WEB3 --> V5_RPC(Access Points):::v5_comp
+    V5_RPC --> V5_P1[Infura / Alchemy / QuickNode]
+    V5_RPC --> V5_P2[Self-hosted / Specialized Nodes]
+
+    V5_WEB3 --> V5_Store(Data Storage):::v5_comp
+    V5_Store --> V5_ST1[IPFS: Content Addressing]
+    V5_Store --> V5_ST2[Arweave: Permanent Storage]
+
+    V5_WEB3 --- V5_V_WEB3[<i>Infra Loopholes</i>]:::v5_vuln
+    V5_V_WEB3 --> V5_V_DNS(DNS Hijacking - Frontend)
+    V5_V_WEB3 --> V5_V_API(RPC API Key Exposure)
+
+    %% --- THE BRIDGE ATTACK LIFECYCLE ---
+    subgraph V5_BridgeHack [Anatomy of a Bridge Exploit]
+        V5_X1[1. Analysis: Identify Multi-sig threshold or Logic flaw] --> V5_X2[2. Action: Compromise Validator Keys or Forge Proofs]
+        V5_X2 --> V5_X3[3. Execution: Submit fake 'Deposit' event to destination]
+        V5_X3 --> V5_X4[4. Extraction: Mint/Withdraw native assets from Vault]
+    end
+
+    %% Linking the infrastructure to the hack
+    V5_V2 -.-> V5_X2
+    V5_R2 -.-> V5_X3
+    V5_T1 -.-> V5_X4
+```
