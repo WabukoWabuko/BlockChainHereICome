@@ -270,3 +270,82 @@ graph LR
         V3_Proc4 -- OOG --> V3_Proc5[REVERT / State Rollback]
     end
 ```
+
+```mermaid
+graph LR
+    %% --- Theme & Styles (V4 Specific) ---
+    classDef v4_core fill:#3a86ff,stroke:#fff,color:#fff,stroke-width:3px;
+    classDef v4_layer fill:#8338ec,stroke:#fff,color:#fff,stroke-width:1px;
+    classDef v4_comp fill:#ffbe0b,stroke:#000,color:#000,stroke-width:1px;
+    classDef v4_econ fill:#06d6a0,stroke:#000,color:#000,stroke-width:1px;
+    classDef v4_vuln fill:#6a040f,stroke:#d00000,color:#fff,stroke-width:2px;
+
+    %% --- Central Hub ---
+    V4_ROOT((<b>VOLUME 4:<br/>DeFi Economic Logic</b>)):::v4_core
+
+    %% --- BRANCH 1: Automated Market Makers (AMM) ---
+    V4_ROOT --- V4_AMM[<b>I. Liquidity & Exchanges</b>]:::v4_layer
+    V4_AMM --> V4_Pools(Liquidity Pools):::v4_comp
+    V4_Pools --> V4_P1["Constant Product: x * y = k (Uniswap v2)"]:::v4_econ
+    V4_Pools --> V4_P2["Concentrated Liquidity (Uniswap v3)"]:::v4_econ
+    V4_Pools --> V4_P3["Stablecoin Invariant (Curve)"]:::v4_econ
+
+    V4_AMM --> V4_Mech(Mechanics):::v4_comp
+    V4_Mech --> V4_M1[Slippage & Price Impact]
+    V4_Mech --> V4_M2[Impermanent Loss]
+    V4_Mech --> V4_M3[LP Token Mint/Burn]
+
+    V4_AMM --- V4_V_AMM[<i>AMM Loopholes</i>]:::v4_vuln
+    V4_V_AMM --> V4_V_Sandwich(Sandwich Attacks / MEV)
+    V4_V_AMM --> V4_V_Imbalance(Pool Imbalance Exploits)
+
+    %% --- BRANCH 2: Lending & Borrowing ---
+    V4_ROOT --- V4_LEND[<b>II. Credit & Debt Markets</b>]:::v4_layer
+    V4_LEND --> V4_Coll(Collateralization):::v4_comp
+    V4_Coll --> V4_C1[Over-collateralized Loans]
+    V4_Coll --> V4_C2[Loan-to-Value /LTV/ Ratios]
+    V4_Coll --> V4_C3[Liquidation Thresholds]
+
+    V4_LEND --> V4_Rate(Interest Rates):::v4_comp
+    V4_Rate --> V4_R1[Utilization-based Rates]
+    V4_Rate --> V4_R2[Supply vs Borrow APY]
+
+    V4_LEND --- V4_V_LEND[<i>Lending Loopholes</i>]:::v4_vuln
+    V4_V_LEND --> V4_V_BadDebt(Bad Debt Accumulation)
+    V4_V_LEND --> V4_V_Liq(Liquidation Front-running)
+
+    %% --- BRANCH 3: The Flash Loan Engine ---
+    V4_ROOT --- V4_FLASH[<b>III. Atomic Composability</b>]:::v4_layer
+    V4_FLASH --> V4_Atom(Atomic Transactions):::v4_comp
+    V4_Atom --> V4_A1[Flash Loans: Zero Collateral]:::v4_econ
+    V4_Atom --> V4_A2[Flash Swaps / Minting]
+    V4_Atom --> V4_A3[Callback-driven Execution]
+
+    V4_FLASH --- V4_V_FLASH[<i>Flash Loopholes</i>]:::v4_vuln
+    V4_V_FLASH --> V4_V_Price(Flash Loan Price Manipulation)
+    V4_V_FLASH --> V4_V_Gov(Governance Vote Buying)
+
+    %% --- BRANCH 4: Price Oracles ---
+    V4_ROOT --- V4_ORAC[<b>IV. External Data Feeds</b>]:::v4_layer
+    V4_ORAC --> V4_Feed(Source Types):::v4_comp
+    V4_Feed --> V4_O1[On-chain: TWAP / Uniswap]
+    V4_Feed --> V4_O2[Off-chain: Chainlink / Pyth]
+    V4_Feed --> V4_O3[Centralized: Exchange APIs]
+
+    V4_ORAC --- V4_V_ORAC[<i>Oracle Loopholes</i>]:::v4_vuln
+    V4_V_ORAC --> V4_V_Stale(Stale Price Feeds)
+    V4_V_ORAC --> V4_V_Pump(Spot Price Manipulation)
+
+    %% --- DEFI ATTACK VECTOR FLOW ---
+    subgraph V4_ExploitFlow [Anatomy of a DeFi Hack]
+        V4_X1[1. Flash Loan: Acquire massive capital] --> V4_X2[2. Manipulate: Skew AMM pool price]
+        V4_X2 --> V4_X3[3. Trigger: Exploit Lending/Vault logic]
+        V4_X3 --> V4_X4[4. Repay: Return loan + profit]
+        V4_X4 --> V4_X5[5. Exit: Bridge funds to privacy mixer]
+    end
+
+    %% Linking the concepts
+    V4_A1 -.-> V4_X1
+    V4_P1 -.-> V4_X2
+    V4_C3 -.-> V4_X3
+```
