@@ -1751,14 +1751,104 @@ for port in range(1, 1025):
 	<section id="step9">
 	<div class="section-header">
 	<h2>9. Exploit Development</h2>
+	<p class="text-secondary">This is where theory becomes weaponized code. Exploit development is the art (and science) of turning a small programming mistake into arbitrary code execution, privilege escalation, or remote shell. It requires deep understanding of memory, assembly, OS protections, and debugging. Most high-impact bugs (RCE, kernel exploits) live here. Start simple, build up protections gradually. Practice is everything — theory alone won't cut it. Spend 12–20 weeks. Goal: write your own shellcode, chain ROP gadgets, bypass modern mitigations. This skill pays very well in bug bounties and red teaming.</p>
 	</div>
+	
 	<div class="hacker-card">
 	<div class="detailed-explain">
-	<p>Buffer overflows → ROP chains → shellcode → heap spraying → use-after-free. Practice on pwn.college, exploit.education, OverTheWire Wargames. Languages: C + NASM assembly.</p>
+	<p><strong>Core Exploit Progression – Step by Step</strong></p>
+	
+	<ol class="small">
+	<li><strong>Classic Stack Buffer Overflow</strong> – Overwrite return address → jump to shellcode.</li>
+	<li><strong>Shellcode</strong> – Machine code that spawns shell (/bin/sh). Must be null-free on strings, alphanumeric if filtered.</li>
+	<li><strong>NX/DEP Bypass with ROP</strong> – Return-Oriented Programming: chain existing code gadgets ending in "ret".</li>
+	<li><strong>ASLR Bypass</strong> – Leak addresses (info leak), brute-force (32-bit), or partial overwrite.</li>
+	<li><strong>Heap Exploitation</strong> – Use-after-free, double-free, heap spraying, tcache poisoning.</li>
+	<li><strong>Modern Mitigations</strong>: PIE, Canary/Stack Guard, CFG (Control Flow Guard), Shadow Stack, CET (Intel), LandLock.</li>
+	</ol>
+	
+	<p><strong>Essential Languages & Tools</strong></p>
+	<ul class="small">
+	<li><strong>C</strong> – Write vulnerable programs + exploits</li>
+	<li><strong>NASM / GAS</strong> – Write shellcode (assembly)</li>
+	<li><strong>pwntools (Python)</strong> – Exploit framework (best for CTF/pwn)</li>
+	<li><strong>gdb + gef/peda/pwndbg</strong> – Debugging</li>
+	<li><strong>checksec, ropper, ROPgadget</strong> – Analyze protections & find gadgets</li>
+	</ul>
+	
+	<p><strong>Practice Platforms (in order of difficulty)</strong></p>
+	<ul class="small">
+	<li>OverTheWire – Bandit → Narnia → Krypton (basics)</li>
+	<li>exploit.education – Protostar, Fusion, Nebula</li>
+	<li>pwn.college – Structured pwn challenges (excellent)</li>
+	<li>ropemporium – Pure ROP training</li>
+	<li>pwnable.tw / pwnable.kr – Real-world style</li>
+	<li>CTFtime pwn events – Live practice</li>
+	</ul>
 	</div>
-	<div class="pros-cons">
-	<strong>DO:</strong> Start with 32-bit, no ASLR/PIE/NX, then gradually enable protections.<br>
-	<strong>DON'T:</strong> Skip learning ASLR bypass techniques.
+	
+	<div class="terminal-block text-danger">
+	# Vulnerable 32-bit stack overflow example (compile with no protections)
+	#include <stdio.h>
+	#include <string.h>
+	
+	void vuln() {
+		char buffer[64];
+		gets(buffer);                   // Classic unsafe function – overflow!
+		printf("You said: %s\n", buffer);
+	}
+	
+	int main() {
+		vuln();
+		return 0;
+	}
+	
+	// Compile: gcc -m32 -fno-stack-protector -z execstack -o vuln vuln.c
+	// Exploit skeleton (pwntools)
+	from pwn import *
+	
+	p = process('./vuln')
+	payload = b'A' * 76 + p32(0xdeadbeef)  # overwrite return address
+	p.sendline(payload)
+	p.interactive()
+	</div>
+	
+	<div class="terminal-block text-success mt-3">
+	# Modern safe version (use this pattern!)
+	#include <stdio.h>
+	#include <string.h>
+	
+	void safe(const char *input) {
+		char buffer[64];
+		strncpy(buffer, input, sizeof(buffer) - 1);
+		buffer[sizeof(buffer) - 1] = '\0';
+		printf("Safe: %s\n", buffer);
+	}
+	</div>
+	
+	<div class="terminal-block mt-3">
+	# Find ROP gadgets in a binary
+	ROPgadget --binary vuln | grep "pop rdi ; ret"
+	
+	# Generate shellcode with pwntools
+	from pwn import *
+	context.arch = 'amd64'
+	shellcode = asm(shellcraft.sh())
+	print(enhex(shellcode))
+	</div>
+	
+	<div class="pros-cons mt-3">
+	<strong>DO:</strong> Start with 32-bit no protections → add Canary → NX → ASLR → PIE → full RELRO one by one. Solve the same challenge each time.<br>
+	<strong>DON'T:</strong> Skip learning how ASLR works or why partial overwrites still succeed.<br>
+	<strong>Pro:</strong> You can turn buffer overflows into RCE, write kernel exploits, understand mitigations deeply.<br>
+	<strong>Con:</strong> Weak exploit dev = stuck at "found vuln but can't exploit" in bounties/CTFs.
+	</div>
+	
+	<div class="mt-3">
+	<a href="https://pwn.college/" target="_blank" class="btn btn-resource btn-sm">pwn.college – Best structured exploit learning (free)</a>
+	<a href="https://exploit.education/" target="_blank" class="btn btn-resource btn-sm mt-2">exploit.education – Classic vulnerable programs</a>
+	<a href="https://ropemporium.com/" target="_blank" class="btn btn-resource btn-sm mt-2">ROP Emporium – Pure ROP training</a>
+	<a href="https://github.com/Gallopsled/pwntools" target="_blank" class="btn btn-resource btn-sm mt-2">pwntools – Install & read docs</a>
 	</div>
 	</div>
 	</section>
@@ -1767,12 +1857,86 @@ for port in range(1, 1025):
 	<section id="step10">
 	<div class="section-header">
 	<h2>10. Blockchain Fundamentals</h2>
+	<p class="text-secondary">Before you can audit or hack smart contracts and blockchains, you must deeply understand how they actually work under the hood. This is not optional — most blockchain hacks exploit misunderstandings of consensus, transactions, or state management. Read primary sources. Run your own nodes. Goal: explain Bitcoin/Ethereum from genesis block to finality in detail. Spend 6–10 weeks. This knowledge separates serious auditors from copy-paste exploit runners.</p>
 	</div>
+	
 	<div class="hacker-card">
 	<div class="detailed-explain">
-	<p>Distributed ledger, consensus (PoW vs PoS), mining, full nodes vs light clients, wallets (hot/cold), transactions, UTXO vs Account model. Read Bitcoin whitepaper cover to cover.</p>
+	<p><strong>Core Concepts – Build Mental Model</strong></p>
+	
+	<ul class="small">
+	<li><strong>Distributed Ledger</strong>: Immutable, append-only chain of blocks replicated across nodes. No single point of truth — consensus decides reality.</li>
+	<li><strong>Consensus Mechanisms</strong>:
+	<ul>
+	<li><strong>Proof of Work (PoW)</strong>: Bitcoin – miners solve hard puzzle (hash below target), energy-intensive, secure via cost.</li>
+	<li><strong>Proof of Stake (PoS)</strong>: Ethereum 2.0+ – validators stake coins, chosen proportionally, slashing for misbehavior.</li>
+	<li>Others: DPoS, PBFT, Tendermint, Avalanche – trade-offs in speed vs decentralization vs security.</li>
+	</ul>
+	</li>
+	<li><strong>Mining / Validation</strong>: Create new blocks, collect fees, secure chain. Difficulty adjustment keeps block time stable.</li>
+	<li><strong>Nodes</strong>:
+	<ul>
+	<li>Full nodes: store entire chain, validate all rules</li>
+	<li>Light clients: trust full nodes (SPV), low resource</li>
+	<li>Archive nodes: keep historical state (very large)</li>
+	</ul>
+	</li>
+	<li><strong>Wallets</strong>:
+	<ul>
+	<li>Hot (online, convenient, risky)</li>
+	<li>Cold (offline, hardware like Ledger/Trezor, safest for large amounts)</li>
+	<li>Seed phrase (BIP-39), derivation paths (BIP-44/49/84)</li>
+	</ul>
+	</li>
+	<li><strong>Transactions</strong>:
+	<ul>
+	<li>Inputs/outputs (Bitcoin UTXO model)</li>
+	<li>Nonce, gas, state changes (Ethereum account model)</li>
+	<li>Signatures (ECDSA/secp256k1), replay protection</li>
+	</ul>
+	</li>
+	<li><strong>UTXO vs Account Model</strong>:
+	<ul>
+	<li>UTXO (Bitcoin): stateless, parallelizable, privacy advantages</li>
+	<li>Account (Ethereum): stateful, easier smart contracts, gas model</li>
+	</ul>
+	</li>
+	</ul>
+	
+	<p><strong>Mandatory Reading & Running</strong></p>
+	<ul class="small">
+	<li>Bitcoin Whitepaper – Read 3 times, understand every paragraph</li>
+	<li>Ethereum Yellow Paper – Technical deep dive</li>
+	<li>Run Bitcoin Core full node + Lightning node</li>
+	<li>Run Ethereum node (Geth or Erigon) + interact via JSON-RPC</li>
+	</ul>
 	</div>
-	<a href="https://bitcoin.org/bitcoin.pdf" target="_blank" class="btn btn-resource">Bitcoin Whitepaper (mandatory)</a>
+	
+	<div class="terminal-block">
+	# Quick Bitcoin testnet node check (after installing Bitcoin Core)
+	bitcoin-cli getblockchaininfo
+	
+	# Send testnet transaction (use small amounts!)
+	bitcoin-cli -testnet sendtoaddress "tb1q..." 0.0001
+	
+	# Ethereum local node example (Geth)
+	geth --http --http.api eth,net,web3
+	curl -X POST --data '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":1}' http://localhost:8545
+	</div>
+	
+	<div class="pros-cons mt-3">
+	<strong>DO:</strong> Run a full Bitcoin node + sync testnet, then mainnet (takes days but worth it). Send real (small) transactions.<br>
+	<strong>DON'T:</strong> Trust "blockchain 101" videos alone — read whitepapers and run code.<br>
+	<strong>Pro:</strong> You understand 51% attacks, double-spend, reorgs, MEV, gas griefing — foundation for smart contract security.<br>
+	<strong>Con:</strong> Weak fundamentals = missing root causes in bridge exploits, consensus bugs, economic attacks.
+	</div>
+	
+	<div class="mt-3">
+	<a href="https://bitcoin.org/bitcoin.pdf" target="_blank" class="btn btn-resource btn-sm">Bitcoin Whitepaper – Read cover to cover (mandatory)</a>
+	<a href="https://ethereum.github.io/yellowpaper/paper.pdf" target="_blank" class="btn btn-resource btn-sm mt-2">Ethereum Yellow Paper – Technical bible</a>
+	<a href="https://github.com/bitcoin/bitcoin" target="_blank" class="btn btn-resource btn-sm mt-2">Bitcoin Core – Install & run a node</a>
+	<a href="https://www.parity.io/technologies/polkadot/" target="_blank" class="btn btn-resource btn-sm mt-2">Polkadot/Substrate docs – For modern consensus understanding</a>
+	</div>
 	</div>
 	</section>
 	
