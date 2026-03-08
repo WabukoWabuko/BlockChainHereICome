@@ -1288,76 +1288,177 @@ for port in range(1, 1025):
 	<!-- ======================== STEP 5 ======================== -->
 	<section id="step5">
 	<div class="section-header">
-	<h2>5. Web Security – Full OWASP Top 10 (2021 + 2025 updates)</h2>
+	<h2>5. Web Security – Full OWASP Top 10 (2021 + 2025 Draft/Trends)</h2>
+	<p class="text-secondary">This is where most money is made (and lost) in bug bounties, red teaming, and real breaches. OWASP Top 10 is the industry bible — master it deeply. The 2021 list is still dominant in 2026; 2025 updates emphasize API security, insecure design, and supply-chain risks. For each entry: understand root cause → exploitation → impact → detection → mitigation → real-world examples. Build vulnerable apps, exploit them, then fix them. Spend 8–12 weeks here. This section alone can get you your first $10k+ bounty if practiced seriously.</p>
 	</div>
+	
 	<div class="row g-4">
+	
+	<!-- Full OWASP Top 10 – Deep Dive with Code, Attacks, Fixes -->
 	<div class="col-12">
 	<div class="hacker-card">
-	<h5>Every Single Vulnerability — Deep Dive</h5>
+	<h5>Every Single Vulnerability — Deep Dive with Exploitation, Impact & Fixes</h5>
 	
 	<div class="owasp-box">
 	<strong>A01:2021 – Broken Access Control</strong><br>
-	Most common. IDOR (Insecure Direct Object Reference): change user ID in URL. Mass assignment in frameworks. Horizontal &amp; vertical privilege escalation. <strong>Example fix:</strong> Always check ownership on every request.
+	Most common category. Attackers access unauthorized data/functions by manipulating IDs, paths, HTTP methods.<br><br>
+	<strong>Common forms:</strong> IDOR (change /user/123 → /user/456), mass assignment (update role in JSON), missing function-level checks, forced browsing.<br>
+	<strong>Real impact:</strong> Account takeover, data theft, admin access.<br>
+	<strong>Example vuln (Node.js):</strong>
+	<div class="terminal-block text-danger">
+	// Vulnerable – no ownership check
+	app.get('/api/orders/:id', (req, res) => {
+		db.getOrder(req.params.id).then(order => res.json(order));
+	});
+	</div>
+	<strong>Fix:</strong> Always verify user owns resource or has role permission.
+	<div class="terminal-block text-success">
+	// Secure
+	app.get('/api/orders/:id', authMiddleware, async (req, res) => {
+		const order = await db.getOrder(req.params.id);
+		if (order.userId !== req.user.id && req.user.role !== 'admin') {
+			return res.status(403).send('Forbidden');
+		}
+		res.json(order);
+	});
+	</div>
 	</div>
 	
 	<div class="owasp-box">
 	<strong>A02:2021 – Cryptographic Failures</strong><br>
-	Weak algorithms (MD5, SHA1), missing TLS, weak random, hardcoded keys. <strong>Example:</strong> Using ECB mode for AES = patterns visible in ciphertext.
+	Formerly "Sensitive Data Exposure". Weak crypto = data theft, impersonation.<br><br>
+	<strong>Common issues:</strong> MD5/SHA1, plaintext passwords, missing TLS, weak keys, predictable random, ECB mode AES.<br>
+	<strong>Real impact:</strong> Credential stuffing success, PII leaks.<br>
+	<strong>Example vuln:</strong> Storing passwords with MD5.
+	<div class="terminal-block text-danger">
+	// Never do this
+	const hash = crypto.createHash('md5').update(password).digest('hex');
+	</div>
+	<strong>Fix:</strong> Use Argon2id / bcrypt / PBKDF2 + salt.
 	</div>
 	
 	<div class="owasp-box">
 	<strong>A03:2021 – Injection</strong><br>
-	SQLi, NoSQLi, Command injection, LDAP. Classic: ' OR 1=1-- <br>
-	<strong>Fix:</strong> Prepared statements / ORM + input validation.
+	Attacker-supplied data interpreted as code (SQL, OS commands, LDAP, NoSQL, etc.).<br><br>
+	<strong>Classic SQLi:</strong> ' OR '1'='1
+	<div class="terminal-block text-danger">
+	// Vulnerable concatenation
+	db.query("SELECT * FROM users WHERE id = " + req.params.id);
+	</div>
+	<strong>Fix:</strong> Prepared statements / ORM.
+	<div class="terminal-block text-success">
+	// Safe (PostgreSQL example)
+	db.query('SELECT * FROM users WHERE id = $1', [req.params.id]);
+	</div>
+	<strong>NoSQL injection example:</strong> { "$ne": null } to bypass login.
 	</div>
 	
 	<div class="owasp-box">
 	<strong>A04:2021 – Insecure Design</strong><br>
-	Missing threat modeling. Example: Password reset token = md5(userid + timestamp).
+	Flaws in design, not implementation. Missing threat modeling, weak password reset, no rate limiting on critical flows.<br><br>
+	<strong>Example:</strong> Reset token = md5(userId + timestamp) → predictable.
 	</div>
 	
 	<div class="owasp-box">
 	<strong>A05:2021 – Security Misconfiguration</strong><br>
-	Default credentials, debug mode in production, unnecessary services exposed.
+	Default creds, debug=true in prod, exposed .git, unnecessary ports open, verbose errors.<br><br>
+	<strong>Fix:</strong> Hardened configs, automated checks (CIS benchmarks), disable directory listing.
 	</div>
 	
 	<div class="owasp-box">
 	<strong>A06:2021 – Vulnerable and Outdated Components</strong><br>
-	Log4Shell, Spring4Shell, outdated npm packages (npm audit).
+	Log4Shell (CVE-2021-44228), Equifax breach (Struts), npm audit hell.<br><br>
+	<strong>Fix:</strong> Dependabot, Snyk, retire.js, regular patching.
 	</div>
 	
 	<div class="owasp-box">
 	<strong>A07:2021 – Identification and Authentication Failures</strong><br>
-	Weak passwords, no MFA, session fixation, credential stuffing.
+	No MFA, weak password policy, session fixation, credential stuffing.<br><br>
+	<strong>Fix:</strong> Enforce MFA, bcrypt/Argon2, rate-limit login, secure cookies.
 	</div>
 	
 	<div class="owasp-box">
 	<strong>A08:2021 – Software and Data Integrity Failures</strong><br>
-	Insecure deserialization (Java, PHP), supply-chain attacks.
+	Insecure deserialization (ysoserial), supply-chain (SolarWinds, Codecov).<br><br>
+	<strong>Fix:</strong> Validate signatures, pinned dependencies, SBOM.
 	</div>
 	
 	<div class="owasp-box">
-	<strong>A09:2021 – Security Logging &amp; Monitoring Failures</strong><br>
-	No logs = no detection. Missing rate limiting on login.
+	<strong>A09:2021 – Security Logging & Monitoring Failures</strong><br>
+	No logs = delayed/incapable detection. Missing alerts on brute-force, anomalous access.<br><br>
+	<strong>Fix:</strong> Centralized logging (ELK, Splunk), monitor auth failures.
 	</div>
 	
 	<div class="owasp-box">
 	<strong>A10:2021 – Server-Side Request Forgery (SSRF)</strong><br>
-	Attacker makes server request internal services (metadata endpoints on cloud).
+	Server makes attacker-controlled requests (internal metadata, cloud IMDS).<br><br>
+	<strong>Example:</strong> /fetch?url=http://169.254.169.254/latest/meta-data/
+	<strong>Fix:</strong> Whitelist URLs, disable unnecessary protocols.
 	</div>
 	
-	<a href="https://owasp.org/www-project-top-ten/" target="_blank" class="btn btn-resource w-100 mt-3">Official OWASP Top 10 (PDF + interactive)</a>
+	<div class="mt-4">
+	<a href="https://owasp.org/www-project-top-ten/" target="_blank" class="btn btn-resource w-100">Official OWASP Top 10 – Read full PDF + cheatsheets</a>
+	<a href="https://portswigger.net/web-security" target="_blank" class="btn btn-resource w-100 mt-2">PortSwigger Web Security Academy – Free labs for EVERY category</a>
 	</div>
 	</div>
+	</div>
+	
+	<!-- Tools – Expanded with Workflow -->
 	<div class="col-md-6">
 	<div class="hacker-card">
-	<h5>Tools You Will Live In</h5>
-	<p><strong>Burp Suite Community</strong> — intercept, repeater, intruder, sequencer.<br>
-	<strong>OWASP ZAP</strong> — automated scanner + proxy.</p>
-	<div class="terminal-block">java -jar burpsuite_community.jar</div>
-	<a href="https://portswigger.net/burp" target="_blank" class="btn btn-resource">Download Burp Suite Community</a>
+	<h5>Tools You Will Live In – Burp Suite & OWASP ZAP Mastery</h5>
+	
+	<div class="detailed-explain">
+	<p><strong>Burp Suite Community (free)</strong></p>
+	<ul class="small">
+	<li>Proxy → intercept & modify requests/responses</li>
+	<li>Repeater → manual testing (change params, methods)</li>
+	<li>Intruder → automated fuzzing/brute-force</li>
+	<li>Scanner (Pro only) → but Community still powerful</li>
+	<li>Decoder, Comparer, Sequencer, Extender</li>
+	</ul>
+	
+	<p><strong>OWASP ZAP (fully free & open-source)</strong></p>
+	<ul class="small">
+	<li>Proxy + active/passive scanner</li>
+	<li>Fuzzer, AJAX spider, API scanning</li>
+	<li>Great for automation (ZAP API)</li>
+	</ul>
+	
+	<p><strong>Daily workflow (recommended):</strong></p>
+	<ol class="small">
+	<li>Configure browser proxy → Burp/ZAP</li>
+	<li>Browse target → capture all requests</li>
+	<li>Send interesting requests to Repeater</li>
+	<li>Test for IDOR, injection, auth bypass</li>
+	<li>Use Intruder for parameter fuzzing</li>
+	<li>Run automated scan overnight</li>
+	</ol>
+	</div>
+	
+	<div class="terminal-block">
+	# Launch Burp Community (Java required)
+	java -jar burpsuite_community.jar
+	
+	# Or ZAP (Java too)
+	zap.sh -daemon   # headless mode for scripts
+	</div>
+	
+	<div class="pros-cons mt-3">
+	<strong>DO:</strong> Spend 1 hour daily in Burp Repeater testing one vuln category until muscle memory forms.<br>
+	<strong>DON'T:</strong> Rely only on automated scanners — they miss business logic bugs and IDOR.<br>
+	<strong>Pro:</strong> You can chain vulnerabilities (XSS → CSRF → account takeover) manually.<br>
+	<strong>Con:</strong> No proxy mastery = blind to request/response flow = missed bugs.
+	</div>
+	
+	<div class="mt-3">
+	<a href="https://portswigger.net/burp/documentation/desktop/getting-started" target="_blank" class="btn btn-resource btn-sm">Burp Suite Getting Started (official)</a>
+	<a href="https://www.zaproxy.org/docs/" target="_blank" class="btn btn-resource btn-sm mt-2">ZAP Documentation – Start with Desktop Guide</a>
+	<a href="https://portswigger.net/web-security" target="_blank" class="btn btn-resource btn-sm mt-2">PortSwigger Academy – Free labs tied to Burp</a>
 	</div>
 	</div>
+	</div>
+	
 	</div>
 	</section>
 	
@@ -1365,24 +1466,109 @@ for port in range(1, 1025):
 	<section id="step6">
 	<div class="section-header">
 	<h2>6. Operating System Security</h2>
+	<p class="text-secondary">After web, the next frontier is the OS itself. Privilege escalation turns a low-priv shell into root/admin. Kernel exploits, rootkits, and sandbox escapes are how advanced persistent threats (APTs) and top-tier red teams move laterally and maintain access. This section is harder — it requires low-level knowledge (C, assembly, syscalls). Spend 8–14 weeks. Practice in VMs only. Goal: own the machine, not just the web app.</p>
 	</div>
+	
 	<div class="row g-4">
+	
+	<!-- Privilege Escalation & Kernel Exploits -->
 	<div class="col-md-6">
 	<div class="hacker-card">
-	<h5>Privilege Escalation &amp; Kernel Exploits</h5>
+	<h5>Privilege Escalation & Kernel Exploits – Linux & Windows</h5>
+	
 	<div class="detailed-explain">
-	<p>Linux: SUID binaries (find / -perm -4000), sudo -l, kernel exploits (Dirty COW, CVE-2021-4034). Windows: UAC bypass, SeImpersonatePrivilege, PrintSpoofer.</p>
+	<p><strong>Linux PrivEsc Vectors (most common in CTFs/pentests):</strong></p>
+	<ul class="small">
+	<li><strong>SUID/SGID binaries</strong>: find / -perm -u=s -type f 2>/dev/null</li>
+	<li><strong>Sudo rights</strong>: sudo -l → run commands as root</li>
+	<li><strong>Writable /etc/passwd or cron jobs</strong></li>
+	<li><strong>Kernel exploits</strong>: Dirty COW (CVE-2016-5195), CVE-2021-4034 (PwnKit), CVE-2022-0847 (Dirty Pipe)</li>
+	<li><strong>PATH hijacking</strong>, capabilities, polkit abuse</li>
+	</ul>
+	
+	<p><strong>Windows PrivEsc Vectors:</strong></p>
+	<ul class="small">
+	<li>UAC bypass (fodhelper, eventvwr)</li>
+	<li>SeImpersonatePrivilege / SeCreateGlobalPrivilege → Juicy Potato, PrintSpoofer</li>
+	<li>Unquoted service paths</li>
+	<li>Weak service permissions</li>
+	<li>Kernel exploits: PrintNightmare, CVE-2021-34527</li>
+	</ul>
+	
+	<p><strong>Practice mindset:</strong> Enumerate → find misconfigs → exploit → clean up.</p>
+	</div>
+	
+	<div class="terminal-block">
+	# Linux enumeration one-liners (run as low-priv user)
+	sudo -l
+	find / -perm -4000 -type f 2>/dev/null | grep -v snap
+	ls -la /etc/cron* /var/spool/cron/crontabs/
+	getcap -r / 2>/dev/null
+	</div>
+	
+	<div class="pros-cons mt-3">
+	<strong>DO:</strong> Use LinPEAS/WinPEAS on every box — then manually verify findings.<br>
+	<strong>DON'T:</strong> Trust automated scripts blindly — understand why each vector works.<br>
+	<strong>Pro:</strong> Turn a www-data shell into root in minutes on misconfigured boxes.<br>
+	<strong>Con:</strong> Weak priv-esc skills = stuck at user level forever.
 	</div>
 	</div>
 	</div>
+	
+	<!-- Rootkits, Malware, Sandbox Escapes, System Calls -->
 	<div class="col-md-6">
 	<div class="hacker-card">
-	<h5>Rootkits, Malware, Sandbox Escapes, System Calls</h5>
+	<h5>Rootkits • Malware Analysis • Sandbox Escapes • System Calls</h5>
+	
 	<div class="detailed-explain">
-	<p>Rootkits hook syscalls or use DKOM. Learn Windows internals (WinDbg), Linux eBPF. Study real malware like Mirai, WannaCry.</p>
+	<p><strong>Rootkits</strong> hide processes/files/connections by hooking syscalls, DKOM (Direct Kernel Object Manipulation), or hypervisor techniques.</p>
+	<ul class="small">
+	<li>Linux: adore-ng, brootkit, Diamorphine</li>
+	<li>Windows: TDL4/Alureon, ZeroAccess</li>
+	</ul>
+	
+	<p><strong>Malware Analysis Basics</strong></p>
+	<ul class="small">
+	<li>Static: strings, PEiD, capa, Ghidra/IDA</li>
+	<li>Dynamic: Process Monitor, Wireshark, x64dbg/WinDbg, Cuckoo Sandbox</li>
+	<li>Famous samples: Mirai (IoT botnet), WannaCry (ransomware), Emotet</li>
+	</ul>
+	
+	<p><strong>Sandbox Escapes</strong></p>
+	<ul class="small">
+	<li>Break out of Chrome sandbox, Windows Defender sandbox, container escapes (CVE-2022-0185)</li>
+	<li>Techniques: syscall abuse, ptrace, eBPF, cgroup escapes</li>
+	</ul>
+	
+	<p><strong>System Calls</strong> – Kernel interface. Learn strace, ltrace, sysdig.</p>
+	</div>
+	
+	<div class="terminal-block">
+	# Trace syscalls of a process (great for understanding rootkits)
+	strace -p $(pidof apache2)
+	
+	# Monitor file/network activity live
+	sysdig proc.name contains ssh
+	
+	# List loaded kernel modules (rootkits often hide here)
+	lsmod
+	</div>
+	
+	<div class="pros-cons mt-3">
+	<strong>DO:</strong> Analyze 5 real malware samples in a safe VM using REMnux or Flare-VM.<br>
+	<strong>DON'T:</strong> Run unknown binaries on host machine — always snapshot VM first.<br>
+	<strong>Pro:</strong> You understand persistence, evasion, and detection techniques used by nation-states.<br>
+	<strong>Con:</strong> Skipping this = blind to advanced threats beyond web vulns.
+	</div>
+	
+	<div class="mt-3">
+	<a href="https://github.com/mikesxrs/Open-Source-Security-Guide/blob/main/privilege_escalation.md" target="_blank" class="btn btn-resource btn-sm">LinPEAS & WinPEAS Guide</a>
+	<a href="https://tryhackme.com/room/linuxprivesc" target="_blank" class="btn btn-resource btn-sm mt-2">TryHackMe Linux PrivEsc Room (free)</a>
+	<a href="https://attack.mitre.org/techniques/enterprise/" target="_blank" class="btn btn-resource btn-sm mt-2">MITRE ATT&CK – Study Privilege Escalation tactics</a>
 	</div>
 	</div>
 	</div>
+	
 	</div>
 	</section>
 	
