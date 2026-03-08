@@ -1944,46 +1944,263 @@ for port in range(1, 1025):
 	<section id="step11">
 	<div class="section-header">
 	<h2>11. Smart Contract Development</h2>
+	<p class="text-secondary">You must learn to write secure smart contracts before you can meaningfully audit or exploit them. Most blockchain hacks (billions stolen since 2016) come from smart contract bugs — not chain-level consensus attacks. This section teaches Solidity (dominant language) and Vyper (simpler, safer subset), plus modern development workflows (Hardhat, Foundry). Build real contracts, deploy to testnets, optimize gas, understand upgrade patterns. Spend 8–12 weeks. Goal: write production-grade ERC-20/721 contracts, understand EVM internals, and spot your own bugs before others do.</p>
 	</div>
-	<div class="row g-4">
-	<div class="col-md-6">
-	<div class="hacker-card">
-	<h5>Solidity &amp; Vyper • Hardhat • Foundry</h5>
-	<div class="terminal-block">pragma solidity ^0.8.24;<br>contract Bank {<br>    mapping(address =&gt; uint) public balance;<br>    function deposit() public payable { balance[msg.sender] += msg.value; }<br>}</div>
-	</div>
-	</div>
-	<div class="col-md-6">
-	<div class="hacker-card">
-	<h5>Gas Optimization, Upgradeable Contracts, Token Standards (ERC-20/721/1155)</h5>
-	<a href="https://docs.soliditylang.org/" target="_blank" class="btn btn-resource">Solidity Official Docs</a>
-	</div>
-	</div>
-	</div>
-	</section>
 	
-	<!-- ======================== STEP 12 ======================== -->
-	<section id="step12">
-	<div class="section-header">
-	<h2>12. Smart Contract Security</h2>
-	</div>
+	<div class="row g-4">
+	
+	<!-- Solidity & Vyper + Tooling -->
+	<div class="col-md-6">
 	<div class="hacker-card">
+	<h5>Solidity & Vyper • Hardhat • Foundry – Modern Development Stack</h5>
+	
 	<div class="detailed-explain">
-	<p><strong>Reentrancy</strong> — The DAO Hack ($60M). Attacker calls withdraw before balance updated.<br>
-	<strong>Integer overflow/underflow</strong> (pre-0.8 Solidity).<br>
-	<strong>Flash loan attacks</strong>, oracle manipulation, front-running, governance takeovers.</p>
+	<p><strong>Solidity</strong> – Most used, feature-rich, but easy to shoot yourself in the foot (reentrancy, overflow, assembly misuse).</p>
+	<ul class="small">
+	<li>Versions: ^0.8.0+ (built-in overflow checks, safe math)</li>
+	<li>Key concepts: contract, state variables, functions (public/external/internal/private), modifiers, events, inheritance, interfaces, libraries</li>
+	<li>Special variables: msg.sender, msg.value, tx.origin (avoid!), block.timestamp, block.number</li>
+	</ul>
+	
+	<p><strong>Vyper</strong> – Python-like, designed for security (no inheritance, no inline assembly, fixed-size arrays, clear visibility). Smaller attack surface, used in serious protocols (Curve, Yearn).</p>
+	
+	<p><strong>Development Environments (2026 standard)</strong></p>
+	<ul class="small">
+	<li><strong>Hardhat</strong> – JavaScript/TypeScript, great testing, plugins (etherscan, gas reporter), local fork of mainnet</li>
+	<li><strong>Foundry</strong> – Rust-based, blazing fast, Forge (testing), Cast (CLI), Anvil (local node), Chisel (REPL) — dominant in 2026 for serious work</li>
+	</ul>
+	
+	<p><strong>Workflow recommendation (2026):</strong> Use Foundry for speed + security focus, Hardhat if you need JS ecosystem or complex deployment scripts.</p>
 	</div>
-	<div class="row">
-	<div class="col-md-6">
-	<div class="terminal-block text-danger">// VULNERABLE<br>function withdraw() public {<br>    msg.sender.call{value: balance[msg.sender]}("");<br>    balance[msg.sender] = 0;<br>}</div>
+	
+	<div class="terminal-block">
+	pragma solidity ^0.8.24;
+	
+	contract SimpleBank {
+		mapping(address => uint256) public balances;
+		
+		event Deposit(address indexed user, uint256 amount);
+		event Withdrawal(address indexed user, uint256 amount);
+		
+		function deposit() external payable {
+			require(msg.value > 0, "Deposit must be greater than 0");
+			balances[msg.sender] += msg.value;
+			emit Deposit(msg.sender, msg.value);
+		}
+		
+		function withdraw(uint256 amount) external {
+			require(balances[msg.sender] >= amount, "Insufficient balance");
+			balances[msg.sender] -= amount;
+			
+			// Checks-Effects-Interactions pattern (safe)
+			(bool success, ) = msg.sender.call{value: amount}("");
+			require(success, "Transfer failed");
+			
+			emit Withdrawal(msg.sender, amount);
+		}
+	}
 	</div>
-	<div class="col-md-6">
-	<div class="terminal-block text-success">// SECURE<br>function withdraw() public {<br>    uint256 amt = balance[msg.sender];<br>    balance[msg.sender] = 0;<br>    payable(msg.sender).transfer(amt);<br>}</div>
-	</div>
-	</div>
-	<p><strong>Tools:</strong> Slither, Mythril, Foundry fuzzing, Echidna, Manticore.</p>
-	<a href="https://github.com/crytic/slither" target="_blank" class="btn btn-resource">Slither by Trail of Bits</a>
-	</div>
-	</section>
+	
+	<div class="terminal-block mt-3">
+	# Foundry quick start (install via curl -L https://foundry.paradigm.xyz | bash)
+	forge init my-project
+		cd my-project
+		forge test
+			
+			# Run local node (Anvil)
+			anvil
+			
+			# Deploy & interact (Cast)
+			cast send 0xContractAddress "deposit()" --value 1ether --private-key YOUR_KEY
+			</div>
+			
+			<div class="pros-cons mt-3">
+			<strong>DO:</strong> Write and test at least 5 contracts: ERC-20, ERC-721, simple vault, multisig, upgradeable proxy.<br>
+			<strong>DON'T:</strong> Use tx.origin for authorization (phishing risk), or msg.value in loops (DoS).<br>
+			<strong>Pro:</strong> You understand gas costs, storage layout, inheritance pitfalls — foundation for secure coding & auditing.<br>
+			<strong>Con:</strong> Weak dev skills = writing vulnerable contracts or missing subtle bugs when auditing.
+			</div>
+			
+			<div class="mt-3">
+			<a href="https://docs.soliditylang.org/en/latest/" target="_blank" class="btn btn-resource btn-sm">Solidity Docs – Read "Solidity by Example"</a>
+			<a href="https://book.getfoundry.sh/" target="_blank" class="btn btn-resource btn-sm mt-2">Foundry Book – Best modern tooling guide</a>
+			<a href="https://vyper.readthedocs.io/en/stable/" target="_blank" class="btn btn-resource btn-sm mt-2">Vyper Docs – Try after Solidity</a>
+			</div>
+			</div>
+			</div>
+			
+			<!-- Gas, Upgradeable, Token Standards -->
+			<div class="col-md-6">
+			<div class="hacker-card">
+			<h5>Gas Optimization • Upgradeable Contracts • Token Standards (ERC-20/721/1155)</h5>
+			
+			<div class="detailed-explain">
+			<p><strong>Gas Optimization (critical for DeFi)</strong></p>
+			<ul class="small">
+			<li>Pack variables (uint128 + uint128 in one slot)</li>
+			<li>Use calldata over memory for function args</li>
+			<li>Avoid storage writes (expensive), use events</li>
+			<li>Minimize loops, use unchecked {} when safe (post-0.8)</li>
+			<li>Tools: gas-report (Foundry), hardhat-gas-reporter</li>
+			</ul>
+			
+			<p><strong>Upgradeable Contracts</strong> – Proxy pattern lets you change logic without changing address/storage.</p>
+			<ul class="small">
+			<li>Transparent Proxy (OpenZeppelin) – most common</li>
+			<li>UUPS (Universal Upgradeable Proxy Standard) – cheaper, logic contract decides upgrade</li>
+			<li>Danger: Storage collisions, initializer front-running</li>
+			</ul>
+			
+			<p><strong>Token Standards</strong></p>
+			<ul class="small">
+			<li><strong>ERC-20</strong>: Fungible tokens (USDC, DAI) – transfer, approve, allowance</li>
+			<li><strong>ERC-721</strong>: NFTs – unique tokens, ownerOf, tokenURI</li>
+			<li><strong>ERC-1155</strong>: Multi-token (fungible + non-fungible), batch transfers, gas efficient</li>
+			<li><strong>Extensions</strong>: ERC-777 (hooks), ERC-4626 (vaults), ERC-721A (optimized minting)</li>
+			</ul>
+			</div>
+			
+			<div class="terminal-block">
+			/// @dev Simple ERC-20 (minimal, for learning)
+			contract MyToken {
+				string public name = "MyToken";
+				string public symbol = "MTK";
+				uint8 public decimals = 18;
+				uint256 public totalSupply;
+				mapping(address => uint256) public balanceOf;
+				mapping(address => mapping(address => uint256)) public allowance;
+				
+				event Transfer(address indexed from, address indexed to, uint256 value);
+				event Approval(address indexed owner, address indexed spender, uint256 value);
+				
+				constructor(uint256 initialSupply) {
+					totalSupply = initialSupply * 10 ** decimals;
+					balanceOf[msg.sender] = totalSupply;
+				}
+				
+				function transfer(address to, uint256 value) external returns (bool) {
+					require(to != address(0), "Invalid recipient");
+					require(balanceOf[msg.sender] >= value, "Insufficient balance");
+					balanceOf[msg.sender] -= value;
+					balanceOf[to] += value;
+					emit Transfer(msg.sender, to, value);
+					return true;
+				}
+			}
+			</div>
+			
+			<div class="pros-cons mt-3">
+			<strong>DO:</strong> Deploy every contract to Sepolia testnet via Foundry/Hardhat, verify on Etherscan, interact via wallet.<br>
+			<strong>DON'T:</strong> Ignore gas — unoptimized contracts get DoS'd or become unusable in high-demand.<br>
+			<strong>Pro:</strong> You understand EVM bytecode, storage slots, proxy patterns — essential for auditing.<br>
+			<strong>Con:</strong> No hands-on dev = blind to subtle bugs (initializer protection, upgrade collisions).
+			</div>
+			
+			<div class="mt-3">
+			<a href="https://docs.openzeppelin.com/contracts/5.x/" target="_blank" class="btn btn-resource btn-sm">OpenZeppelin Contracts – Use these templates</a>
+			<a href="https://eips.ethereum.org/EIPS/eip-20" target="_blank" class="btn btn-resource btn-sm mt-2">ERC-20 Standard (official EIP)</a>
+			</div>
+			</div>
+			</div>
+			
+			</div>
+			</section>
+			
+			<!-- ======================== STEP 12 ======================== -->
+			<section id="step12">
+			<div class="section-header">
+			<h2>12. Smart Contract Security</h2>
+			<p class="text-secondary">Most blockchain losses (>$3B+ by 2026) come from smart contract bugs — not chain hacks. This section teaches every major vulnerability class, famous exploits, detection patterns, and mitigation strategies. Learn to think like an attacker: read code → find assumptions → break them. Use static analyzers, fuzzing, formal verification. Goal: audit real protocols confidently. Spend 10–16 weeks. Audit at least 3 Code4rena/Immunefi findings retroactively.</p>
+			</div>
+			
+			<div class="hacker-card">
+			<div class="detailed-explain">
+			<p><strong>Major Vulnerability Classes – With Famous Exploits & Fixes</strong></p>
+			
+			<div class="mt-3">
+			<strong>Reentrancy</strong> – Attacker re-enters contract before state update (The DAO 2016 – $60M).<br>
+			<strong>Pattern:</strong> external call before state change.<br>
+			<strong>Mitigation:</strong> Checks-Effects-Interactions + ReentrancyGuard.
+			</div>
+			
+			<div class="row mt-3">
+			<div class="col-md-6">
+			<div class="terminal-block text-danger">
+			// VULNERABLE – classic reentrancy
+			function withdraw() external {
+				uint256 bal = balances[msg.sender];
+				require(bal > 0);
+				(bool sent, ) = msg.sender.call{value: bal}("");
+				require(sent, "Failed to send Ether");
+				balances[msg.sender] = 0;           // Too late!
+			}
+			</div>
+			</div>
+			<div class="col-md-6">
+			<div class="terminal-block text-success">
+			// SECURE – Checks-Effects-Interactions + guard
+			using OpenZeppelin ReentrancyGuard;
+			
+			function withdraw() external nonReentrant {
+				uint256 bal = balances[msg.sender];
+				require(bal > 0);
+				balances[msg.sender] = 0;           // Update FIRST
+				(bool sent, ) = msg.sender.call{value: bal}("");
+				require(sent, "Failed to send Ether");
+			}
+			</div>
+			</div>
+			</div>
+			
+			<div class="mt-3">
+			<strong>Integer Overflow/Underflow</strong> – Pre-0.8 Solidity (fixed with checked arithmetic). Post-0.8: built-in revert.<br>
+			<strong>Still dangerous:</strong> SafeMath misuse, assembly, downcasting.
+			</div>
+			
+			<div class="mt-3">
+			<strong>Flash Loan Attacks</strong> – Borrow huge amount in one tx, manipulate price/oracle, profit (bZx, Harvest, Cream).<br>
+			<strong>Mitigation:</strong> TWAP oracles, delay actions, circuit breakers.
+			</div>
+			
+			<div class="mt-3">
+			<strong>Oracle Manipulation</strong> – Flash loan + DEX price manipulation → bad rates (Synthetix, bZx).<br>
+			<strong>Fix:</strong> Chainlink, TWAP, median of multiple sources.
+			</div>
+			
+			<div class="mt-3">
+			<strong>Front-running & MEV</strong> – Bots see mempool tx → insert higher-gas tx first (sandwich attacks, liquidations).<br>
+			<strong>Mitigation:</strong> Commit-reveal, private RPCs, Flashbots.
+			</div>
+			
+			<div class="mt-3">
+			<strong>Governance Attacks</strong> – Token voting manipulation, flash-loan vote buying, proposal spam (Compound, Beanstalk).<br>
+			<strong>Fix:</strong> Timelocks, vote snapshots, quadratic voting.
+			</div>
+			
+			<p><strong>Tools You Must Master</strong></p>
+			<ul class="small">
+			<li>Slither (Trail of Bits) – Static analysis, detectors for 100+ issues</li>
+			<li>Mythril – Symbolic execution</li>
+			<li>Echidna / Foundry fuzz – Property-based fuzzing</li>
+			<li>Manticore – Symbolic execution (advanced)</li>
+			<li>Certora – Formal verification (highest assurance)</li>
+			</ul>
+			</div>
+			
+			<div class="pros-cons mt-3">
+			<strong>DO:</strong> Run Slither + Foundry fuzz on every contract you write. Audit at least one Code4rena contest retroactively.<br>
+			<strong>DON'T:</strong> Trust "it passed Slither" — manual review + fuzzing always needed.<br>
+			<strong>Pro:</strong> You can find $100k–$1M+ bugs in DeFi protocols.<br>
+			<strong>Con:</strong> Weak contract security = writing or missing reentrancy, oracle, governance bugs.
+			</div>
+			
+			<div class="mt-3">
+			<a href="https://github.com/crytic/slither" target="_blank" class="btn btn-resource btn-sm">Slither – Install & run on your contracts</a>
+			<a href="https://book.getfoundry.sh/forge/fuzzing" target="_blank" class="btn btn-resource btn-sm mt-2">Foundry Fuzzing Guide – Learn invariant testing</a>
+			<a href="https://secure-contracts.com/" target="_blank" class="btn btn-resource btn-sm mt-2">Secure Contracts – Trail of Bits best practices</a>
+			</div>
+			</div>
+			</section>
 	
 	<!-- ======================== STEP 13 ======================== -->
 	<section id="step13">
