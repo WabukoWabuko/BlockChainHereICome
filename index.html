@@ -460,64 +460,207 @@ docker run -d -p 3000:3000 bkimminich/juice-shop
 <section id="step1">
 <div class="section-header">
 <h2>1. Programming Fundamentals</h2>
-<p class="text-secondary">A hacker must write code before they can break it. Spend 8–10 weeks here.</p>
+<p class="text-secondary">A hacker must write code before they can break it. This is not optional. If you only ever run other people's exploits, you're a script kiddie. If you understand how code is built, you can see exactly where and how it breaks. Plan 8–12 weeks here — go slow, write a lot, break things on purpose. This is where the real power begins.</p>
 </div>
+
 <div class="row g-4">
+
+<!-- Core Concepts – Full Deep Dive -->
 <div class="col-12">
 <div class="hacker-card">
-<h5>Core Programming Concepts — Explained Deeply</h5>
+<h5>Core Programming Concepts — Explained Deeply with Security Relevance</h5>
+
 <div class="concept-box">
-<strong>Variables &amp; Memory</strong><br>
-Variables are named memory locations. In C, int x = 5; allocates 4 bytes on stack. Understand scope, lifetime, and shadowing.
+<strong>Variables & Memory Allocation</strong><br>
+A variable is just a named location in memory. When you write <code>int x = 42;</code> in C, the program asks for 4 bytes (usually) and puts the number 42 there in binary.<br><br>
+<strong>Scope</strong>: Where the name is visible (block, function, file, global).<br>
+<strong>Lifetime</strong>: How long the memory stays allocated (automatic = stack, static = program lifetime, dynamic = heap).<br>
+<strong>Shadowing</strong>: Same name in inner scope hides outer one — can lead to subtle bugs.<br><br>
+<strong>Security angle</strong>: Forgetting scope/lifetime leads to use-after-free, dangling pointers, information leaks from uninitialized variables.
 </div>
+
 <div class="concept-box">
-<strong>Loops &amp; Control Flow</strong><br>
-for, while, do-while, recursion. Recursion depth can cause stack overflow — critical for exploit writing.
-	</div>
-	<div class="concept-box">
-	<strong>Functions &amp; Closures</strong><br>
-	First-class functions in JS/Python allow callbacks and higher-order functions used in event-driven exploits.
-	</div>
-	<div class="concept-box">
-	<strong>Data Structures &amp; Algorithms</strong><br>
-	Arrays, HashMaps, Linked Lists, Trees, Graphs. Big-O notation. Know how to implement a binary search or Dijkstra for network mapping.
-	</div>
-	<div class="concept-box">
-	<strong>Memory Management &amp; Concurrency</strong><br>
-	Stack (fast, automatic) vs Heap (manual, slower). Pointers in C. Threads, mutexes, deadlocks — race conditions are real attack vectors.
-	</div>
-	<div class="pros-cons">
-	<strong>DO:</strong> Implement every concept twice — once in Python, once in C.<br>
-	<strong>DON'T:</strong> Copy code from GitHub without rewriting it line-by-line.
-	</div>
-	</div>
-	</div>
-	<div class="col-md-6">
-	<div class="hacker-card">
-	<span class="badge-step">Language Learning Path</span>
-	<h5>Recommended Order + Real Examples</h5>
-	<p><strong>1. Python</strong> – scripting &amp; exploits<br>
-	<strong>2. JavaScript</strong> – web &amp; Node.js<br>
-	<strong>3. C</strong> – memory &amp; exploits<br>
-	<strong>4. Go/Rust</strong> – safe systems<br>
-	<strong>5. Solidity</strong> – blockchain</p>
-	<div class="terminal-block"># Python socket scanner (real exploit starter)<br>import socket<br>target = "192.168.1.1"<br>for port in range(1, 1025):<br>    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)<br>    result = sock.connect_ex((target, port))<br>    if result == 0:<br>        print(f"Port {port} open")<br>    sock.close()</div>
-	<a href="https://www.python.org/doc/" target="_blank" class="btn btn-resource">Python Docs</a>
-	</div>
-	</div>
-	<div class="col-md-6">
-	<div class="hacker-card">
-	<h5>Critical Low-Level Topics: Pointers, Buffers, Stack vs Heap</h5>
-	<p class="detailed-explain">In C, pointers hold memory addresses. Buffers are fixed-size arrays. Stack grows downward, heap grows upward. Overflowing a stack buffer can overwrite return addresses — the basis of 90% of classic exploits.</p>
-	<div class="terminal-block text-danger">// Classic buffer overflow<br>#include &lt;string.h&gt;<br>void vuln() {<br>    char buf[8];<br>    strcpy(buf, "This string is way too long and will overflow");<br>}<br>int main() { vuln(); return 0; }</div>
-	<div class="pros-cons">
-	<strong>DO:</strong> Compile with gcc -fno-stack-protector -z execstack and test.<br>
-	<strong>DON'T:</strong> Use strcpy, gets, or any unsafe function in 2026.
-	</div>
-	</div>
-	</div>
-	</div>
-	</section>
+<strong>Loops & Control Flow</strong><br>
+<code>for</code>, <code>while</code>, <code>do-while</code>, <code>break</code>/<code>continue</code>, <code>goto</code> (avoid in normal code, useful in exploits sometimes).<br><br>
+<strong>Recursion</strong>: Function calls itself. Each call adds a new stack frame → too deep = stack overflow.<br><br>
+<strong>Security relevance</strong>: Stack overflow from recursion is one way to crash programs (denial of service). Infinite loops in malware can freeze systems. Off-by-one errors in loops are extremely common buffer overflow sources.
+</div>
+
+<div class="concept-box">
+<strong>Functions & Closures / First-Class Functions</strong><br>
+Functions are blocks of reusable code. In Python/JS they are "first-class" — can be passed as arguments, returned from other functions, stored in variables.<br><br>
+<strong>Closures</strong>: Function remembers variables from its surrounding scope even after that scope is gone.<br><br>
+<strong>Security angle</strong>: Callback hell in JS → prototype pollution attacks. Closures in exploits can capture sensitive data. Function pointers in C are used in ROP (Return-Oriented Programming) chains.
+</div>
+
+<div class="concept-box">
+<strong>Data Structures & Algorithms</strong><br>
+<ul>
+<li><strong>Arrays</strong>: fixed-size, contiguous memory — fast access, bad for inserts/deletes</li>
+<li><strong>Linked Lists</strong>: nodes with pointers — good inserts, slow random access</li>
+<li><strong>Hash Maps / Dictionaries</strong>: key → value, average O(1) lookup (hash collisions matter)</li>
+<li><strong>Trees</strong> (binary, BST, trie): hierarchical data, searching/sorting</li>
+<li><strong>Graphs</strong>: nodes + edges — networks, pathfinding (Dijkstra, BFS/DFS)</li>
+</ul>
+<strong>Big-O</strong>: How time/space grows with input size. O(n²) sort on 1 million items = disaster.<br><br>
+<strong>Security relevance</strong>: Hash flooding DoS attacks (collisions), inefficient algorithms in parsers → resource exhaustion, graph algorithms for network pivoting / privilege paths.
+</div>
+
+<div class="concept-box">
+<strong>Memory Management & Concurrency</strong><br>
+<strong>Stack</strong>: Automatic, fast, fixed per thread, grows down → return addresses here.<br>
+<strong>Heap</strong>: Manual (malloc/free, new/delete), slower, grows up, fragmented.<br>
+<strong>Pointers</strong>: Variables that hold memory addresses.<br><br>
+<strong>Concurrency</strong>: Threads, processes, async/await, promises.<br>
+<strong>Race conditions</strong>: Two threads access same data without proper locking.<br>
+<strong>Mutex / Semaphore / Spinlock</strong>: Prevent simultaneous access.<br><br>
+<strong>Security angle</strong>: Stack/heap overflows, use-after-free, double-free, race conditions → arbitrary code execution, data corruption, info leaks.
+</div>
+
+<div class="pros-cons mt-3">
+<strong>DO:</strong> Implement every major concept at least twice: once high-level (Python), once low-level (C). Break your own code on purpose (overflow buffers, create races).<br>
+<strong>DON'T:</strong> Copy-paste from GitHub or ChatGPT without typing every line yourself and explaining it out loud.<br>
+<strong>Biggest payoff:</strong> When you see a crash or exploit, you immediately know which memory region and which mistake caused it.<br>
+<strong>Biggest trap:</strong> Staying only in Python → you'll never understand real memory exploits or kernel code.
+</div>
+
+</div>
+</div>
+
+<!-- Language Path + Python Example -->
+<div class="col-md-6">
+<div class="hacker-card">
+<span class="badge-step">Language Learning Path</span>
+<h5>Recommended Order + Why + Security Use-Cases + Starter Examples</h5>
+
+<p><strong>1. Python</strong> – Scripting, automation, exploit prototyping, web scraping, crypto attacks<br>
+→ Easiest syntax, huge libraries (pwntools, requests, scapy, cryptography)</p>
+
+<p><strong>2. JavaScript</strong> – Browser & Node.js exploits, XSS payloads, prototype pollution, server-side attacks</p>
+
+<p><strong>3. C</strong> – Memory corruption, classic exploits, reverse engineering, kernel modules, shellcode</p>
+
+<p><strong>4. Go / Rust</strong> – Modern safe systems, writing secure tools, understanding why memory safety matters</p>
+
+<p><strong>5. Solidity</strong> – Smart contracts, blockchain vulnerabilities (reentrancy, overflow)</p>
+
+<div class="terminal-block">
+# Python – Basic port scanner (real exploit foundation)
+import socket
+import sys
+
+target = "192.168.1.1"          # Change this!
+start_port = 1
+end_port = 1024
+
+print(f"Scanning {target} from {start_port} to {end_port}...")
+
+for port in range(start_port, end_port + 1):
+	try:
+	sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+	sock.settimeout(0.5)                    # Don't wait forever
+	result = sock.connect_ex((target, port)) # 0 = success
+	if result == 0:
+		print(f"[+] Port {port} is OPEN")
+		sock.close()
+		except KeyboardInterrupt:
+		print("\n[!] Scan stopped by user")
+		sys.exit()
+		except Exception as e:
+		print(f"Error on port {port}: {e}")
+		
+		print("Scan complete.")
+		</div>
+		
+		<div class="mt-3">
+		<a href="https://docs.python.org/3/tutorial/" target="_blank" class="btn btn-resource btn-sm">Official Python Tutorial (start here)</a>
+		<a href="https://www.youtube.com/playlist?list=PL-osiE80TeTt2d9bfVyTiXJA-UTHn6WwU" target="_blank" class="btn btn-resource btn-sm mt-2">Corey Schafer Python Tutorials (excellent)</a>
+		<a href="https://github.com/gabemarshall/How-To-Think-Like-A-Hacker" target="_blank" class="btn btn-resource btn-sm mt-2">How To Think Like A Hacker – Python security mindset</a>
+		</div>
+		</div>
+		</div>
+		
+		<!-- Critical Low-Level Topics -->
+		<div class="col-md-6">
+		<div class="hacker-card">
+		<h5>Critical Low-Level Topics: Pointers, Buffers, Stack vs Heap – The Foundation of Memory Exploits</h5>
+		
+		<div class="detailed-explain">
+		<p><strong>Pointers</strong>: A variable that stores a memory address. <code>int *p = &x;</code> → p holds the address of x.</p>
+		<p><strong>Buffers</strong>: Usually fixed-size arrays (<code>char buf[64];</code>). Programmers often forget to check input size.</p>
+		
+		<p><strong>Stack</strong>:</p>
+		<ul>
+		<li>Fast, automatic allocation/deallocation</li>
+		<li>Grows downward (high → low addresses on x86)</li>
+		<li>Contains local variables, function arguments, return addresses</li>
+		<li>Each function call pushes a new frame</li>
+		</ul>
+		
+		<p><strong>Heap</strong>:</p>
+		<ul>
+		<li>Manual (malloc/free or new/delete)</li>
+		<li>Grows upward (low → high)</li>
+		<li>Used for dynamic sizes (user input length, lists, etc.)</li>
+		<li>Fragmentation, metadata overhead</li>
+		</ul>
+		
+		<p><strong>Classic stack buffer overflow</strong>: Writing past the end of a stack buffer overwrites whatever comes next — usually the saved return address → attacker controls where function returns → code execution.</p>
+		</div>
+		
+		<div class="terminal-block text-danger">
+		#include &lt;stdio.h&gt;
+		#include &lt;string.h&gt;
+		
+		void vulnerable_function(char *input) {
+			char buffer[16];                    // Only 16 bytes safe
+			strcpy(buffer, input);              // Copies until \0 – NO bounds check!
+			printf("You said: %s\n", buffer);
+		}
+		
+		int main(int argc, char **argv) {
+			if (argc &lt; 2) {
+				printf("Usage: %s &lt;input&gt;\n", argv[0]);
+				return 1;
+			}
+			vulnerable_function(argv[1]);
+			return 0;
+		}
+		</div>
+		
+		<div class="terminal-block text-success mt-3">
+		<!-- Safe version example -->
+		// SAFE version using strncpy
+		#include &lt;stdio.h&gt;
+		#include &lt;string.h&gt;
+		
+		void safe_function(const char *input) {
+			char buffer[16];
+			strncpy(buffer, input, sizeof(buffer) - 1);   // Leave room for null terminator
+			buffer[sizeof(buffer) - 1] = '\0';            // Guarantee null-termination
+			printf("You said: %s\n", buffer);
+		}
+		</div>
+		
+		<div class="pros-cons mt-3">
+		<strong>DO:</strong> Compile vulnerable code with protections turned OFF to see crashes:<br>
+		<code>gcc -m32 -fno-stack-protector -z execstack -o vuln vuln.c</code><br>
+		Then run with long input: <code>./vuln $(python3 -c 'print("A"*100)')</code><br>
+		<strong>DON'T:</strong> EVER use <code>strcpy</code>, <code>gets</code>, <code>sprintf</code>, <code>strcat</code> without bounds in 2026.<br>
+		<strong>Use instead:</strong> <code>strncpy</code>, <code>fgets</code>, <code>snprintf</code>, <code>strlcat</code>, or better — modern languages.<br>
+		<strong>Biggest lesson:</strong> Every memory corruption bug traces back to trusting attacker-controlled input with fixed-size memory.
+		</div>
+		
+		<div class="mt-3">
+		<a href="https://www.youtube.com/watch?v=1S0aBV-WZeo" target="_blank" class="btn btn-resource btn-sm">LiveOverflow – Binary Exploitation / Memory series (must watch)</a>
+		<a href="https://pwnable.tw/" target="_blank" class="btn btn-resource btn-sm mt-2">Pwnable.tw – Start practicing after this section</a>
+		</div>
+		</div>
+		</div>
+		
+		</div>
+		</section>
+
 	
 	<!-- ======================== STEP 2 ======================== -->
 	<section id="step2">
