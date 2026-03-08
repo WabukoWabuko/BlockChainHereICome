@@ -506,3 +506,72 @@ graph LR
         V6_Step4 --> V6_Step5[5. Draft & Submit Report]
     end
 ```
+
+```mermaid
+graph LR
+    %% --- Theme & Styles (V7 Specific) ---
+    classDef v7_core fill:#000000,stroke:#39ff14,color:#39ff14,stroke-width:3px;
+    classDef v7_layer fill:#1a1a1a,stroke:#39ff14,color:#fff,stroke-width:1px;
+    classDef v7_comp fill:#333333,stroke:#39ff14,color:#fff,stroke-width:1px;
+    classDef v7_plat fill:#056608,stroke:#39ff14,color:#fff,stroke-width:1px;
+    classDef v7_vuln fill:#6a040f,stroke:#d00000,color:#fff,stroke-width:2px;
+
+    %% --- Central Hub ---
+    V7_ROOT((<b>VOLUME 7:<br/>Bug Bounty & Research</b>)):::v7_core
+
+    %% --- BRANCH 1: Competitive Landscape ---
+    V7_ROOT --- V7_PLAT[<b>I. Platforms & Venues</b>]:::v7_layer
+    V7_PLAT --> V7_P1(Audit Contests):::v7_comp
+    V7_P1 --> V7_C1["Code4rena: Open Competitive Audits"]
+    V7_P1 --> V7_C2["Sherlock: Fixed-price / Guaranteed Pay"]
+    V7_P1 --> V7_C3["Cantina: Elite / Tiered Access"]
+
+    V7_PLAT --> V7_P2(Bug Bounties):::v7_comp
+    V7_P2 --> V7_B1["Immunefi: The DeFi Standard"]:::v7_plat
+    V7_P2 --> V7_B2["HackerOne: General / Exchange Infra"]:::v7_plat
+
+    %% --- BRANCH 2: Research Strategy ---
+    V7_ROOT --- V7_STRAT[<b>II. Target Selection</b>]:::v1_layer
+    V7_STRAT --> V7_S1(Filtering):::v7_comp
+    V7_S1 --> V7_S1_1[High TVL: Total Value Locked]
+    V7_S1 --> V7_S1_2[Newly Deployed: First-mover advantage]
+    V7_S1 --> V7_S1_3[Bridge/Lending: High Criticality]
+
+    V7_STRAT --> V7_S2["The Edge: Competitive Advantage"]:::v7_comp
+    V7_S2 --> V7_S2_1[Fork Analysis: Diffing known protocols]
+    V7_S2 --> V7_S2_2[Post-Mortem Analysis: Learning from hacks]
+    V7_S2 --> V7_S2_3[Zero-Day Hunting: Novel Patterns]
+
+    %% --- BRANCH 3: Disclosure Workflow ---
+    V7_ROOT --- V7_FLOW[<b>III. The Disclosure Process</b>]:::v7_layer
+    V7_FLOW --> V7_F1(Communication):::v7_comp
+    V7_F1 --> V7_F1_1[Encrypted Channels: PGP/Signal]
+    V7_F1 --> V7_F1_2[Bug Triage: Platform mediation]
+    
+    V7_FLOW --> V7_F2(Negotiation):::v7_comp
+    V7_F2 --> V7_F2_1[Impact Assessment: Proving the High]
+    V7_F2 --> V7_F2_2[Fix Verification: Validating patches]
+
+    V7_FLOW --- V7_V_FLOW[<i>Disclosure Risks</i>]:::v7_vuln
+    V7_V_FLOW --> V7_V_Ghost(Ghosting: Protocol Ignored)
+    V7_V_FLOW --> V7_V_Front(Front-running by Devs)
+
+    %% --- BRANCH 4: Professional Growth ---
+    V7_ROOT --- V7_GROW[<b>IV. Building a Reputation</b>]:::v7_layer
+    V7_GROW --> V7_G1(Open Source):::v7_comp
+    V7_G1 --> V7_G1_1[Writing Custom Slither Detectors]
+    V7_G1 --> V7_G1_2[Publishing Security Tools on GitHub]
+
+    V7_GROW --> V7_G2(Networking):::v7_comp
+    V7_G2 --> V7_G2_1[Security Telegram / Discord Alpha]
+    V7_G2 --> V7_G2_2[Speaking at Conferences: ETHCC/Devcon]
+
+    %% --- THE HACKER REVENUE CYCLE ---
+    subgraph V7_RevenueCycle [The Bounty Hunter Journey]
+        V7_Step1[1. Select Target] --> V7_Step2[2. Find Logic Flaw]
+        V7_Step2 --> V7_Step3[3. Build Bulletproof PoC]
+        V7_Step3 --> V7_Step4[4. Submit Encrypted Report]
+        V7_Step4 --> V7_Step5[5. Triage / Validity Check]
+        V7_Step5 --> V7_Step6[6. Payout & Reputation]
+    end
+```
