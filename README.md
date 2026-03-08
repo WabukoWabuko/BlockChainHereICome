@@ -89,7 +89,7 @@ graph TD
     style ROOT fill:#ffc300,color:#000
 
 ```mermaid
-graph TD
+graph LR
     %% --- Theme & Styles (V2 Specific) ---
     classDef v2_core fill:#ff8c00,stroke:#000,color:#000,stroke-width:3px;
     classDef v2_layer fill:#fefae0,stroke:#dda15e,color:#000,stroke-width:1px;
@@ -103,84 +103,80 @@ graph TD
     %% --- BRANCH 1: Primitives & Math ---
     V2_ROOT --- V2_MATH[<b>I. Cryptographic Primitives</b>]:::v2_layer
     V2_MATH --> V2_Hash(Hashing Functions):::v2_comp
-    V2_Hash --> V2_H1[Keccak-256 (EVM)]:::v2_math
-    V2_Hash --> V2_H2[SHA-256 (Bitcoin)]:::v2_math
-    V2_Hash --> V2_H3[RIPEMD-160 (Addresses)]:::v2_math
+    V2_Hash --> V2_H1["Keccak-256 (EVM)"]:::v2_math
+    V2_Hash --> V2_H2["SHA-256 (Bitcoin)"]:::v2_math
+    V2_Hash --> V2_H3["RIPEMD-160 (Addresses)"]:::v2_math
     
     V2_MATH --> V2_Ecc(Elliptic Curve Cryptography):::v2_comp
-    V2_Ecc --> V2_E1[Curve secp256k1 (Bitcoin/EVM)]:::v2_math
-    V2_Ecc --> V2_E2[Curve Ed25519 (Solana/Near)]:::v2_math
-    V2_Ecc --> V2_E3[Field Math: Modular Arithmetic]:::v2_math
-    V2_Ecc --> V2_E4[Scalar Multiplication / Point Addition]:::v2_math
+    V2_Ecc --> V2_E1["Curve secp256k1 (Bitcoin/EVM)"]:::v2_math
+    V2_Ecc --> V2_E2["Curve Ed25519 (Solana/Near)"]:::v2_math
+    V2_Ecc --> V2_E3["Field Math: Modular Arithmetic"]:::v2_math
+    V2_Ecc --> V2_E4["Scalar Multiplication / Point Addition"]:::v2_math
 
     V2_MATH --> V2_Sym(Symmetric Encryption):::v2_comp
-    V2_Sym --> V2_AES[AES-256 (Keystore Encryption)]:::v2_math
+    V2_Sym --> V2_AES["AES-256 (Keystore Encryption)"]:::v2_math
 
     V2_MATH --- V2_V_MATH[<i>Primitive Loopholes</i>]:::v2_vuln
-    V2_V_MATH --> V2_M_Col(Hash Collisions):::v2_vuln
-    V2_V_MATH --> V2_M_Quan(Quantum Weakness):::v2_vuln
-    V2_V_MATH --> V2_M_Implementation(Incorrect Field Math Implementation):::v2_vuln
+    V2_V_MATH --> V2_M_Col(Hash Collisions)
+    V2_V_MATH --> V2_M_Quan(Quantum Weakness)
+    V2_V_MATH --> V2_M_Imp(Implementation Errors)
 
     %% --- BRANCH 2: Key Management Lifecycle ---
     V2_ROOT --- V2_KEYS[<b>II. Key & Identity Lifecycle</b>]:::v2_layer
     V2_KEYS --> V2_Gen(Generation Phase):::v2_comp
-    V2_Gen --> V2_G1[Entropy Source: PRNG/HRNG]:::v2_math
-    V2_Gen --> V2_G2[BIP-39 Mnemonic / Seed Phrase]
-    V2_Gen --> V2_G3[BIP-32/44 HD Wallet Derivation]:::v2_math
+    V2_Gen --> V2_G1["Entropy Source: PRNG/HRNG"]:::v2_math
+    V2_Gen --> V2_G2["BIP-39 Mnemonic / Seed Phrase"]
+    V2_Gen --> V2_G3["BIP-32/44 HD Wallet Derivation"]:::v2_math
 
     V2_KEYS --> V2_Deriv(Derivation Path):::v2_comp
     V2_Deriv --> V2_D1[Master Private Key]
     V2_D1 --> V2_D2[Child Private Key]
-    V2_D2 --> V2_D3[Public Key (Point G)]:::v2_math
-    V2_D3 --> V2_D4[Wallet Address (Keccak/RIPEMD)]:::v2_math
+    V2_D2 --> V2_D3["Public Key (Point G)"]:::v2_math
+    V2_D3 --> V2_D4["Wallet Address (Keccak/RIPEMD)"]:::v2_math
 
     V2_KEYS --> V2_Storage(Storage Phase):::v2_comp
-    V2_Storage --> V2_S1[Cold Storage (Air-gapped)]
-    V2_Storage --> V2_S2[Hardware Security Module (HSM)]
-    V2_Storage --> V2_S3[Hot Wallet (Software)]
-    V2_Storage --> V2_S4[Multi-Party Computation (MPC)]
+    V2_Storage --> V2_S1[Cold Storage - Air-gapped]
+    V2_Storage --> V2_S2["Hardware Security Module (HSM)"]
+    V2_Storage --> V2_S3[Hot Wallet - Software]
+    V2_Storage --> V2_S4["Multi-Party Computation (MPC)"]
     
     V2_KEYS --- V2_V_KEYS[<i>Key Management Loopholes</i>]:::v2_vuln
-    V2_V_KEYS --> V2_K_Entropy(Weak Entropy Source):::v2_vuln
-    V2_V_KEYS --> V2_K_Path(Path Derivation Exploit - BIP32):::v2_vuln
-    V2_V_KEYS --> V2_K_Clipboard(Clipboard Keyloggers):::v2_vuln
-    V2_V_KEYS --> V2_K_SideChannel(Side-Channel Attacks - HSM extraction):::v2_vuln
+    V2_V_KEYS --> V2_K_Ent(Weak Entropy Source)
+    V2_V_KEYS --> V2_K_Path(Path Derivation Exploit)
+    V2_V_KEYS --> V2_K_Clip(Clipboard Keyloggers)
 
     %% --- BRANCH 3: Transaction Signing (ECDSA) ---
-    V2_ROOT --- V2_ECDSA[<b>III. Transaction Signing & Verification</b>]:::v2_layer
+    V2_ROOT --- V2_ECDSA[<b>III. Transaction Signing</b>]:::v2_layer
     V2_ECDSA --> V2_Sign(Signing Process):::v2_comp
-    V2_Sign --> V2_Si1[Tx Payload / Message (m)]
-    V2_Sign --> V2_Si2[Hashing: H(m)]:::v2_math
-    V2_Sign --> V2_Si3[Generate Ephemeral Key (k) - MUST be random!]
-    V2_Si4(Signature components r, s):::v2_math
+    V2_Sign --> V2_Si1["Tx Payload / Message (m)"]
+    V2_Sign --> V2_Si2["Hashing: H(m)"]:::v2_math
+    V2_Sign --> V2_Si3["Generate Ephemeral Key (k)"]
+    V2_Si4["Signature Components (r, s)"]:::v2_math
     V2_Si2 & V2_Si3 --> V2_Si4
-    V2_Si4 --> V2_Si5[Broadcast Tx {m, r, s, PubKey}]
+    V2_Si4 --> V2_Si5["Broadcast Tx {m, r, s, PubKey}"]
 
     V2_ECDSA --> V2_Verif(Verification Process):::v2_comp
-    V2_Verif --> V2_V1[Receive Tx Payload and Sig {r, s}]
-    V2_V2(Reconstruct PubKey):::v2_math
-    V2_Verif --> V2_V3[Verify: s * PointG + r * PubKey = H(m)]:::v2_math
+    V2_Verif --> V2_V1["Receive Tx Payload & Sig"]
+    V2_V2["Reconstruct PubKey"]:::v2_math
+    V2_Verif --> V2_V3["Check Verification Equation"]:::v2_math
     V2_V1 --> V2_V2
     V2_V2 --> V2_V3
 
     V2_ECDSA --- V2_V_ECDSA[<i>Signing Loopholes</i>]:::v2_vuln
-    V2_V_ECDSA --> V2_E_Nonce(Nonce k Reuse Attack):::v2_vuln
-    V2_V_ECDSA --> V2_E_Replay(Transaction Replay - Lack of chain ID):::v2_vuln
-    V2_V_ECDSA --> V2_E_Forg(Signature Forgery - Faulty implementation):::v2_vuln
-    V2_V_ECDSA --> V2_E_Mall(Signature Malleability - OpenSSL flaw):::v2_vuln
+    V2_V_ECDSA --> V2_E_Nonce(Nonce k Reuse Attack)
+    V2_V_ECDSA --> V2_E_Rep(Replay - Lack of ChainID)
+    V2_V_ECDSA --> V2_E_Mall(Signature Malleability)
 
-    %% --- BRANCH 4: Advanced Concepts (ZKP, MPC) ---
-    V2_ROOT --- V2_ADV[<b>IV. Advanced & Emerging Cryptography</b>]:::v2_layer
+    %% --- BRANCH 4: Advanced Concepts ---
+    V2_ROOT --- V2_ADV[<b>IV. Advanced Cryptography</b>]:::v2_layer
     V2_ADV --> V2_Zkp(Zero-Knowledge Proofs):::v2_comp
-    V2_Zkp --> V2_Z1[SNARKs (Setup phase required)]
-    V2_Zkp --> V2_Z2[STARKs (Quantum resistant)]
-    V2_Zkp --> V2_Z3[Verifier / Prover logic]
+    V2_Zkp --> V2_Z1[zk-SNARKs]
+    V2_Zkp --> V2_Z2[zk-STARKs]
     
-    V2_ADV --> V2_MpcA(Multi-Party Computation):::v2_comp
-    V2_MpcA --> V2_M1[Threshold Signatures (TSS)]
-    V2_MpcA --> V2_M2[Key Sharding / Secret Sharing]
-    V2_MpcA --> V2_M3[Distributed Key Generation (DKG)]
+    V2_ADV --> V2_MpcA(MPC & TSS):::v2_comp
+    V2_MpcA --> V2_M1[Threshold Signatures]
+    V2_MpcA --> V2_M2[Key Sharding]
 
     V2_ADV --- V2_V_ADV[<i>Advanced Loopholes</i>]:::v2_vuln
-    V2_V_ADV --> V2_A_ZkpFault(Soundness / Completeness Error):::v2_vuln
-    V2_V_ADV --> V2_A_MpcCollusion(Participant Collusion):::v2_vuln
+    V2_V_ADV --> V2_A_ZkpF(ZKP Soundness Error)
+    V2_V_ADV --> V2_A_Coll(Participant Collusion)
