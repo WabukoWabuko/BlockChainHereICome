@@ -179,6 +179,94 @@ graph LR
     V2_MpcA --> V2_M2[Key Sharding]
 
     V2_ADV --- V2_V_ADV[<i>Advanced Loopholes</i>]:::v2_vuln
-```
     V2_V_ADV --> V2_A_ZkpF(ZKP Soundness Error)
     V2_V_ADV --> V2_A_Coll(Participant Collusion)
+```
+
+```mermaid
+graph LR
+    %% --- Theme & Styles (V3 Specific) ---
+    classDef v3_core fill:#7209b7,stroke:#fff,color:#fff,stroke-width:3px;
+    classDef v3_layer fill:#f72585,stroke:#fff,color:#fff,stroke-width:1px;
+    classDef v3_comp fill:#4cc9f0,stroke:#000,color:#000,stroke-width:1px;
+    classDef v3_evm fill:#3f37c9,stroke:#fff,color:#fff,stroke-width:1px;
+    classDef v3_vuln fill:#6a040f,stroke:#d00000,color:#fff,stroke-width:2px;
+
+    %% --- Central Hub ---
+    V3_ROOT((<b>VOLUME 3:<br/>Smart Contract Internals</b>)):::v3_core
+
+    %% --- BRANCH 1: The Compilation Pipeline ---
+    V3_ROOT --- V3_COMP[<b>I. High-Level to Bytecode</b>]:::v3_layer
+    V3_COMP --> V3_Lang(Languages):::v3_comp
+    V3_Lang --> V3_L1[Solidity: Contract-Oriented]
+    V3_Lang --> V3_L2[Vyper: Security-Centric / Pythonic]
+    V3_Lang --> V3_L3[Huff/Yul: Low-Level Assembly]
+
+    V3_COMP --> V3_Build(Build Artifacts):::v3_comp
+    V3_Build --> V3_B1["ABI: Application Binary Interface (JSON)"]
+    V3_Build --> V3_B2[Bytecode: Runtime vs Deployment]
+    V3_Build --> V3_B3[Source Maps: Debugging Symbols]
+
+    V3_COMP --- V3_V_COMP[<i>Compiler Loopholes</i>]:::v3_vuln
+    V3_V_COMP --> V3_C_Ver(Compiler Version Bugs)
+    V3_V_COMP --> V3_C_Opt(Optimizer Inconsistencies)
+
+    %% --- BRANCH 2: EVM Architecture (The Virtual Machine) ---
+    V3_ROOT --- V3_EVM[<b>II. EVM Architecture</b>]:::v3_layer
+    V3_EVM --> V3_Memory(Volatile Memory):::v3_evm
+    V3_Memory --> V3_M1["The Stack (1024 slots / 32 bytes)"]
+    V3_Memory --> V3_M2["Memory (Linear Byte Array)"]
+    V3_Memory --> V3_M3["Calldata (Read-only Input)"]
+
+    V3_EVM --> V3_State(Persistent Storage):::v3_evm
+    V3_State --> V3_S1["Storage Slots (Key-Value Mapping)"]
+    V3_S2["Slot Packing (Gas Optimization)"]:::v3_comp
+    V3_S1 --> V3_S2
+
+    V3_EVM --> V3_Ops(Opcode Groups):::v3_evm
+    V3_Ops --> V3_O1[Stack Ops: PUSH/POP/DUP/SWAP]
+    V3_Ops --> V3_O2[Arithmetic: ADD/MUL/SUB/EXP]
+    V3_Ops --> V3_O3[Context: CALLER/ADDRESS/GAS]
+    V3_Ops --> V3_O4["Control: JUMP/JUMPI/REVERT"]
+
+    V3_EVM --- V3_V_EVM[<i>EVM Loopholes</i>]:::v3_vuln
+    V3_V_EVM --> V3_E_Stack(Stack Depth Limit - Pre-Spurious Dragon)
+    V3_V_EVM --> V3_E_SColl(Storage Collision - Proxy Patterns)
+    V3_V_EVM --> V3_E_OOB(Out-of-Bounds Memory Access)
+
+    %% --- BRANCH 3: Contract Execution Flow ---
+    V3_ROOT --- V3_FLOW[<b>III. Execution & Calls</b>]:::v3_layer
+    V3_FLOW --> V3_Call(Call Types):::v3_comp
+    V3_Call --> V3_C1["CALL (Standard External)"]
+    V3_Call --> V3_C2["STATICCALL (Read-only)"]
+    V3_Call --> V3_C3["DELEGATECALL (Context Sharing)"]
+
+    V3_FLOW --> V3_Fall(Fallback Logic):::v3_comp
+    V3_Fall --> V3_F1[receive: Handles Plain ETH]
+    V3_Fall --> V3_F2[fallback: Handles Generic Calls]
+
+    V3_FLOW --- V3_V_FLOW[<i>Logic Loopholes</i>]:::v3_vuln
+    V3_V_FLOW --> V3_L_Re(Reentrancy - Inter-contract calls)
+    V3_V_FLOW --> V3_L_Del(Delegatecall to Unstrusted Target)
+    V3_V_FLOW --> V3_L_Gas(Gas Limit DoS)
+
+    %% --- BRANCH 4: Gas Economics ---
+    V3_ROOT --- V3_GAS[<b>IV. Gas & Incentives</b>]:::v3_layer
+    V3_GAS --> V3_Calc(Gas Calculation):::v3_comp
+    V3_Calc --> V3_G1[Base Fee + Priority Fee]
+    V3_Calc --> V3_G2[Intrinsic Gas: 21,000]
+    V3_Calc --> V3_G3[Computational Gas: Sum of Opcodes]
+
+    V3_GAS --- V3_V_GAS[<i>Gas Loopholes</i>]:::v3_vuln
+    V3_V_GAS --> V3_G_Grief(Gas Griefing Attacks)
+    V3_V_GAS --> V3_G_Siphon(Unbounded Loop Siphoning)
+
+    %% --- The "Stack Machine" Subgraph ---
+    subgraph V3_StackMachine [EVM Processing Flow]
+        V3_Proc1[1. Fetch Opcode] --> V3_Proc2[2. Decode & Execute]
+        V3_Proc2 --> V3_Proc3[3. Update Stack/Storage]
+        V3_Proc3 --> V3_Proc4{4. Check Gas}
+        V3_Proc4 -- Enough --> V3_Proc1
+        V3_Proc4 -- OOG --> V3_Proc5[REVERT / State Rollback]
+    end
+```
