@@ -916,43 +916,197 @@ for port in range(1, 1025):
 	<section id="step3">
 	<div class="section-header">
 	<h2>3. Linux Mastery</h2>
-	<p class="text-secondary">95% of hacking tools run on Linux. Become a terminal ninja.</p>
+	<p class="text-secondary">95% of serious hacking tools, servers, cloud instances, IoT devices, and pentest environments run Linux. If you don't master Linux, you're forever stuck at the surface of every attack vector. The terminal is your primary interface — treat it like an extension of your brain. Goal: think in commands, not clicks. Plan 8–12 weeks here. Use Linux as your main OS (in VM if paranoid) and live in the shell every day.</p>
 	</div>
+	
 	<div class="row g-4">
+	
+	<!-- 3.1 Shell & Bash Scripting – Deep & Practical -->
 	<div class="col-md-6">
 	<div class="hacker-card">
 	<span class="badge-step">3.1 Shell &amp; Bash Scripting</span>
-	<h5>Advanced Shell Commands &amp; Scripting</h5>
-	<div class="terminal-block">#!/bin/bash<br>echo "Starting network sweep..."<br>for ip in {1..254}; do<br>    (ping -c 1 -W 1 192.168.1.$ip &gt;/dev/null &amp;&amp; echo "Host 192.168.1.$ip is UP") &amp;<br>done<br>wait</div>
-	<p class="small">Learn sed, awk, cut, tr, xargs, parallel — these turn one-liners into powerful recon tools.</p>
-	</div>
-	</div>
-	<div class="col-md-6">
-	<div class="hacker-card">
-	<span class="badge-step">3.2 Permissions, Processes, Logs, cron, Networking</span>
-	<h5>File Permissions, Processes, System Logs, cron jobs, iptables</h5>
+	<h5>Advanced Shell Commands + Bash Scripting for Recon, Automation & Exploitation</h5>
+	
 	<div class="detailed-explain">
-	<p>chmod 4755 = SUID bit (dangerous if misused). ps aux, top, htop, kill -9. journalctl -u ssh. cron jobs run as root — common privilege escalation vector.</p>
-	<p>ss -tuln shows listening ports. netstat is deprecated.</p>
-	</div>
-	</div>
-	</div>
-	<div class="col-12">
-	<div class="hacker-card">
-	<h5>Security Distributions</h5>
+	<p>The shell (bash/zsh/fish) is your command interpreter. Bash is still king in pentest world because Kali ships it and most scripts are written in it.</p>
+	
+	<p><strong>Core everyday power commands (memorize these):</strong></p>
 	<ul class="small">
-	<li><strong>Kali Linux</strong> — 600+ tools pre-installed. Use in VM only.</li>
-	<li><strong>Parrot OS</strong> — lighter, better for daily use and anonymity.</li>
+	<li><strong>Navigation & discovery</strong>: <code>pwd</code> • <code>ls -lahtr</code> • <code>tree -L 3</code> • <code>find / -name "*.php" 2>/dev/null</code></li>
+	<li><strong>Text manipulation</strong>: <code>grep -rIE "password|api_key" /etc 2>/dev/null</code> • <code>sed 's/old/new/g'</code> • <code>awk '{print $1,$NF}'</code> • <code>cut -d: -f1 /etc/passwd</code></li>
+	<li><strong>Piping & redirection</strong>: <code>|</code> • <code>></code> • <code>>></code> • <code>2>&1</code> • <code>tee</code> • <code>xargs -I {} command {}</code></li>
+	<li><strong>Parallel & efficiency</strong>: <code>parallel</code> • <code>xargs -P 10</code> • <code>wait</code> (for background jobs)</li>
 	</ul>
-	<div class="pros-cons">
-	<strong>DO:</strong> Install Kali in VirtualBox + snapshot after every major change.<br>
-	<strong>DON'T:</strong> Ever run Kali as your daily driver OS — security risk.
+	
+	<p><strong>Bash scripting mindset for hackers</strong>: Automate repetitive recon, build custom tools, chain commands into pipelines, handle errors gracefully.</p>
 	</div>
-	<a href="https://www.kali.org/docs/" target="_blank" class="btn btn-resource">Kali Documentation</a>
-	</div>
-	</div>
-	</div>
-	</section>
+	
+	<div class="terminal-block">
+	#!/bin/bash
+	# Simple but powerful live host discovery + port check
+	# Usage: ./sweep.sh 192.168.1
+	
+	subnet="${1:-192.168.1}"
+	echo "[*] Sweeping $subnet.0/24 ..."
+	
+	# Background ping sweep (fast)
+	for i in {1..254}; do
+		(ping -c 1 -W 1 "$subnet.$i" >/dev/null 2>&1 && echo "[+] Host UP: $subnet.$i") &
+		done
+		wait
+		
+		echo "[*] Top 20 ports scan on live hosts (using nmap - fast version)"
+		live_hosts=$(arp -n | grep -v incomplete | awk '{print $1}' | grep -E '^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$')
+		
+		for host in $live_hosts; do
+			nmap -F --open "$host" | grep "open" | awk -v h="$host" '{print "[+] " h " → " $1 " " $3}'
+			done
+			</div>
+			
+			<div class="terminal-block mt-3">
+			# One-liner: Find all world-readable private keys (common misconfig)
+			find / -type f -name "*id_*sa" -perm -o=r 2>/dev/null | xargs -I {} sh -c 'echo "[!] Readable key: {}"; head -n 2 {}'
+			
+			# Extract all IPs from logs quickly
+			grep -oE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b" /var/log/auth.log | sort -u
+			</div>
+			
+			<div class="pros-cons mt-3">
+			<strong>DO:</strong> For 30 days: do ALL file operations, searches, downloads, and automation ONLY via terminal — no GUI file manager.<br>
+			<strong>DON'T:</strong> Write long scripts without comments and error handling (<code>set -euo pipefail</code>).<br>
+			<strong>Pro:</strong> You can turn 30 minutes of manual work into 5-second one-liners — huge time saver in real engagements.<br>
+			<strong>Con:</strong> Weak bash = slow recon, missed opportunities, dependency on other people's scripts.
+			</div>
+			</div>
+			</div>
+			
+			<!-- 3.2 Permissions, Processes, Logs, cron, Networking -->
+			<div class="col-md-6">
+			<div class="hacker-card">
+			<span class="badge-step">3.2 Permissions, Processes, Logs, cron, Networking Tools</span>
+			<h5>File Permissions • Processes • Logs • Scheduled Tasks • Network Inspection</h5>
+			
+			<div class="detailed-explain">
+			<p><strong>File Permissions & Special Bits</strong></p>
+			<ul class="small">
+			<li>rwxrwxrwx = 777 (everyone can do anything — very dangerous)</li>
+			<li><strong>SUID</strong>: <code>chmod u+s binary</code> or <code>4755</code> → runs as owner (often root) → privilege escalation goldmine</li>
+			<li><strong>SGID</strong>: 2755 → group permissions</li>
+			<li><strong>Sticky bit</strong>: 1777 (only owner can delete in shared dirs like /tmp)</li>
+			</ul>
+			
+			<p><strong>Processes & Resource Monitoring</strong></p>
+			<ul class="small">
+			<li><code>ps auxf</code> → tree view of all processes</li>
+			<li><code>top / htop / btop</code> → live monitoring</li>
+			<li><code>kill -9 PID</code> / <code>pkill -f name</code></li>
+			<li><code>nice / renice</code> → control CPU priority</li>
+			</ul>
+			
+			<p><strong>Logs & Auditing</strong></p>
+			<ul class="small">
+			<li><code>journalctl -u ssh -f</code> → live SSH logs</li>
+			<li><code>/var/log/auth.log</code> • <code>/var/log/syslog</code> • <code>/var/log/kern.log</code></li>
+			<li><code>ausearch -m USER_AVC</code> (SELinux denials)</li>
+			</ul>
+			
+			<p><strong>cron & Scheduled Tasks</strong></p>
+			<ul class="small">
+			<li><code>crontab -l</code> • <code>crontab -e</code></li>
+			<li>/etc/cron.* directories</li>
+			<li>Root cron jobs with weak permissions = privilege escalation vector</li>
+			</ul>
+			
+			<p><strong>Networking Inspection (modern tools)</strong></p>
+			<ul class="small">
+			<li><code>ss -tuln</code> → listening sockets (replaces netstat)</li>
+			<li><code>ip -c a</code> • <code>ip route</code> • <code>iptables -L -v -n</code></li>
+			<li><code>lsof -i</code> • <code>netstat -tulnp</code> (if still installed)</li>
+			</ul>
+			</div>
+			
+			<div class="terminal-block">
+			# Find all SUID binaries – prime priv-esc candidates
+			find / -perm -u=s -type f 2>/dev/null | grep -v snap
+			
+			# Watch live process tree (great for spotting miners/backdoors)
+			htop  # or btop if installed
+			
+			# Check who is logged in + what they are doing
+			w
+			last
+			who
+			
+			# See all cron jobs on the system (including system-wide)
+			cat /etc/crontab
+			ls -la /etc/cron.* /var/spool/cron/crontabs/
+			</div>
+			
+			<div class="pros-cons mt-3">
+			<strong>DO:</strong> Every week: run <code>find / -perm -4000 -o -perm -2000</code> on your lab VM and understand every result.<br>
+			<strong>DON'T:</strong> Ignore world-writable files in /etc or /var — they are almost always misconfigs.<br>
+			<strong>Pro:</strong> You spot privilege escalation paths in minutes instead of hours.<br>
+			<strong>Con:</strong> Weak Linux internals knowledge = missing root in boxes you could have owned.
+			</div>
+			</div>
+			</div>
+			
+			<!-- Security Distributions – Practical Advice -->
+			<div class="col-12">
+			<div class="hacker-card">
+			<h5>Security-Focused Distributions – Which to Use & How</h5>
+			
+			<div class="detailed-explain">
+			<p><strong>Kali Linux</strong></p>
+			<ul class="small">
+			<li>600+ pre-installed tools (Metasploit, Burp, Nmap, Wireshark, sqlmap, etc.)</li>
+			<li>Rolling release → always latest versions</li>
+			<li>Designed for pentesting, forensics, reverse engineering</li>
+			<li><strong>Use case:</strong> Attack VMs, CTFs, real engagements (in VM!)</li>
+			<li><strong>Never</strong> install as daily driver — root user by default, many tools can be dangerous if misused</li>
+			</ul>
+			
+			<p><strong>Parrot OS</strong></p>
+			<ul class="small">
+			<li>Lighter than Kali, better performance on older hardware</li>
+			<li>Strong focus on privacy/anonymity (Tor, Anonsurf, firewall by default)</li>
+			<li>Security & pentest tools + developer tools</li>
+			<li><strong>Use case:</strong> Daily driver for red teamers who want less noise, better opsec</li>
+			</ul>
+			
+			<p><strong>Other notable mentions</strong></p>
+			<ul class="small">
+			<li>BlackArch – Arch-based, huge tool repo, bleeding-edge</li>
+			<li>BackBox – Ubuntu-based, clean, lightweight</li>
+			<li>Arch / Debian minimal + tools – most advanced users build custom</li>
+			</ul>
+			</div>
+			
+			<div class="terminal-block">
+			# Quick Kali/Parrot setup checklist after fresh VM install
+			sudo apt update && sudo apt full-upgrade -y
+			sudo apt install -y tor proxychains wireshark htop btop neovim
+			# Enable ssh if needed
+			sudo systemctl enable ssh --now
+			</div>
+			
+			<div class="pros-cons mt-3">
+			<strong>DO:</strong> Run Kali/Parrot exclusively in VirtualBox/VMware with snapshots after every major tool install or config change.<br>
+			<strong>DON'T:</strong> Use Kali as daily driver — browser history, saved passwords, etc. become attack surface.<br>
+			<strong>Pro:</strong> Instant access to best-in-class tools = faster learning and execution.<br>
+			<strong>Con:</strong> Blindly trusting pre-installed tools = potential supply-chain risk (rare but real).
+			</div>
+			
+			<div class="mt-3">
+			<a href="https://www.kali.org/docs/" target="_blank" class="btn btn-resource btn-sm">Official Kali Documentation – Start with "Getting Started"</a>
+			<a href="https://parrotsec.org/docs/" target="_blank" class="btn btn-resource btn-sm mt-2">Parrot OS Documentation</a>
+			<a href="https://www.kali.org/tools/" target="_blank" class="btn btn-resource btn-sm mt-2">Full Kali Tools List – Know what's inside</a>
+			</div>
+			</div>
+			</div>
+			
+			</div>
+			</section>
 	
 	<!-- ======================== STEP 4 ======================== -->
 	<section id="step4">
