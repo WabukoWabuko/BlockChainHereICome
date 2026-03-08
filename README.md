@@ -89,7 +89,7 @@ graph TD
     style ROOT fill:#ffc300,color:#000
 
 ```mermaid
-graph LR
+graph TD
     %% --- Theme & Styles (V2 Specific) ---
     classDef v2_core fill:#ff8c00,stroke:#000,color:#000,stroke-width:3px;
     classDef v2_layer fill:#fefae0,stroke:#dda15e,color:#000,stroke-width:1px;
