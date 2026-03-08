@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Web3 Security Guru Roadmap</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=Inter:wght@400;700&display=swap" rel="stylesheet">
+<style>
+body {
+	font-family: 'Inter', sans-serif;
+	background-color: #0f172a;
+	color: #e2e8f0;
+	line-height: 1.6;
+}
+.hero-section {
+	background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+	padding: 80px 0;
+	border-bottom: 1px solid #334155;
+}
+.card {
+	background-color: #1e293b;
+	border: 1px solid #334155;
+	border-radius: 12px;
+	transition: transform 0.3s ease, border-color 0.3s ease;
+	margin-bottom: 2rem;
+}
+.card:hover {
+	transform: translateY(-5px);
+	border-color: #38bdf8;
+}
+.card-title {
+	color: #38bdf8;
+	font-weight: 700;
+}
+.vol-badge {
+	background-color: #38bdf8;
+	color: #0f172a;
+	font-weight: bold;
+	font-size: 0.8rem;
+	padding: 4px 12px;
+	border-radius: 20px;
+	text-transform: uppercase;
+}
+.linux-command {
+	background-color: #000;
+	color: #10b981;
+	padding: 15px;
+	border-radius: 8px;
+	font-family: 'Fira Code', monospace;
+	font-size: 0.9rem;
+	margin: 15px 0;
+	border-left: 4px solid #10b981;
+}
+.guru-status {
+	color: #f59e0b;
+	font-weight: bold;
+}
+.step-num {
+	background: #38bdf8;
+	color: #fff;
+	width: 40px;
+	height: 40px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: 50%;
+	font-weight: bold;
+	margin-bottom: 1rem;
+}
+footer {
+	padding: 40px 0;
+	text-align: center;
+	border-top: 1px solid #334155;
+	margin-top: 60px;
+}
+</style>
+</head>
+<body>
+
+<section class="hero-section text-center">
+<div class="container">
+<h1 class="display-4 fw-bold mb-3">The Blockchain Security <span class="text-info">Guru</span> Path</h1>
+<p class="lead text-secondary">From Terminal Basics to High-Value Bug Bounties.</p>
+<div class="mt-4">
+<span class="badge bg-dark border border-secondary p-2">v1.0.0 - 2026 Edition</span>
+</div>
+</div>
+</section>
+
+<div class="container my-5">
+<div class="row">
+<div class="col-12 mb-4">
+<h2 class="border-bottom border-secondary pb-2">Phase 1: The Linux & Protocol Foundation</h2>
+</div>
+
+<div class="col-md-6">
+<div class="card p-4 h-100">
+<div class="step-num">01</div>
+<span class="vol-badge mb-2">Prerequisite</span>
+<h3 class="card-title">Master the Parrot OS Terminal</h3>
+<p>Before touching a smart contract, you must be comfortable in the Linux environment. Learn to navigate, manage permissions, and automate tasks.</p>
+<div class="linux-command">
+# Update your security toolkit<br>
+sudo apt update && sudo apt full-upgrade -y<br><br>
+# Monitor network connections for recon<br>
+ss -tulnp
+</div>
+<ul class="text-secondary small">
+<li>Learn <code>chmod</code> and <code>chown</code> for file security.</li>
+<li>Master <code>grep</code> and <code>awk</code> for log analysis.</li>
+</ul>
+</div>
+</div>
+
+<div class="col-md-6">
+<div class="card p-4 h-100">
+<div class="step-num">02</div>
+<span class="vol-badge mb-2">Volume 1 & 2</span>
+<h3 class="card-title">Protocol & Cryptography</h3>
+<p>Understand how nodes reach consensus and how ECDSA secures identities. You aren't just a dev; you're a protocol scientist.</p>
+<div class="linux-command">
+# Generate a PGP key for secure bounty disclosure<br>
+gpg --full-generate-key
+</div>
+<p class="small text-info">GURU TIP: Understand the Mempool. Use tools like Geth to watch transactions before they are mined.</p>
+</div>
+</div>
+</div>
+
+<div class="row mt-5">
+<div class="col-12 mb-4">
+<h2 class="border-bottom border-secondary pb-2">Phase 2: The Attack Surface</h2>
+</div>
+
+<div class="col-md-6">
+<div class="card p-4 h-100">
+<div class="step-num">03</div>
+<span class="vol-badge mb-2">Volume 3 & 4</span>
+<h3 class="card-title">EVM & DeFi Exploitation</h3>
+<p>Move into the "Engine Room." Learn Solidity not to build, but to break. Master Flash Loans and Oracle Manipulation.</p>
+<div class="linux-command">
+# Install Foundry (The Industry Standard)<br>
+curl -L https://foundry.paradigm.xyz | bash<br>
+foundryup
+</div>
+<p class="small text-secondary">Practice: Re-entrancy attacks and Logic Flaws in AMMs.</p>
+</div>
+</div>
+
+<div class="col-md-6">
+<div class="card p-4 h-100">
+<div class="step-num">04</div>
+<span class="vol-badge mb-2">Volume 5</span>
+<h3 class="card-title">Bridge & Infrastructure Hacking</h3>
+<p>Learn why bridges are the "Final Boss." Target off-chain relayers and cross-chain message passing logic.</p>
+<div class="linux-command">
+# Analyze contract storage for state collisions<br>
+cast storage &lt;CONTRACT_ADDRESS&gt;
+</div>
+<p class="small text-warning">Warning: Bridge hacks often involve social engineering. Secure your relay keys!</p>
+</div>
+</div>
+</div>
+
+<div class="row mt-5">
+<div class="col-12 mb-4">
+<h2 class="border-bottom border-secondary pb-2">Phase 3: Professional Security Research</h2>
+</div>
+
+<div class="col-md-12">
+<div class="card p-4">
+<div class="row align-items-center">
+<div class="col-md-8">
+<div class="step-num">05</div>
+<span class="vol-badge mb-2">Volume 6 & 7</span>
+<h3 class="card-title">The Auditor's Methodology</h3>
+<p>This is where you earn. Combine Static Analysis, Invariant Testing, and Manual Review into a professional SOP. Submit your findings to Immunefi or Code4rena.</p>
+<div class="linux-command">
+# Run Slither to find common vulnerabilities automatically<br>
+slither . --print human-summary
+</div>
+</div>
+<div class="col-md-4 text-center">
+<div class="p-3 border border-info rounded">
+<h4 class="guru-status">GURU LEVEL UNLOCKED</h4>
+<p class="small text-secondary">You are now ready to perform professional audits and compete for 6-figure bounties.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<footer>
+<div class="container">
+<p class="text-secondary">&copy; 2026 Blockchain Security Roadmap | Powered by the 7-Volume Encyclopedia</p>
+</div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
