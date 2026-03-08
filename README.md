@@ -90,7 +90,8 @@ graph LR
     %% Strategic Links for Flow
     V1_T2 -.-> V1_P2P
     V1_T4 -.-> V1_MP
-    V1_T5 -.-> V1_CONS```
+    V1_T5 -.-> V1_CONS
+```
 Volume 2: The Cryptographic Vault — Keys & Identity
 
 In Web3, "Identity" is math. Volume 2 dives into the cryptographic primitives that secure every dollar on-chain. This isn't just about knowing what a private key is; it's about understanding how entropy (randomness) becomes a seed phrase, and how that seed is mathematically derived into thousands of addresses.
