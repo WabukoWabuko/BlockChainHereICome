@@ -2573,14 +2573,106 @@ for port in range(1, 1025):
 	PoC:
 	```python
 	# Exploit code here
+	</section>
 	
 	<!-- ======================== STEP 17 ======================== -->
 	<section id="step17">
 	<div class="section-header">
 	<h2>17. Advanced Blockchain Hacking</h2>
+	<p class="text-secondary">This is elite-tier blockchain security: auditing high-value DeFi protocols, hunting MEV opportunities, fuzzing/finding subtle logic bugs, using symbolic execution for path coverage, and applying formal verification for mathematical proofs of correctness. Most $1M+ bounties and protocol rescues come from here. You need strong Solidity dev + security + math + tooling mastery. Spend 12–24 weeks actively auditing and fuzzing. Goal: find and responsibly disclose a critical bug in a live protocol, contribute to audit tools, or publish novel attack vectors. This level separates top auditors from everyone else.</p>
 	</div>
+	
 	<div class="hacker-card">
-	<p class="detailed-explain">DeFi protocol audits, MEV searchers/bots, smart-contract fuzzing (Echidna, Foundry), symbolic execution (Manticore), formal verification (Certora, KEVM).</p>
+	<div class="detailed-explain">
+	<p><strong>Core Advanced Skills – What Top Auditors Do Daily</strong></p>
+	
+	<div class="mt-3">
+	<strong>1. DeFi Protocol Audits</strong><br>
+	Full end-to-end reviews of lending, DEX, yield farming, derivatives, stablecoins, bridges.<br>
+	<strong>Focus areas:</strong>
+	<ul class="small">
+	<li>Math correctness (interest accrual, liquidation thresholds)</li>
+	<li>Access control (roles, timelocks, multisig)</li>
+	<li>External dependencies (oracles, flash loans)</li>
+	<li>Economic attacks (infinite mint, griefing)</li>
+	<li>Upgrade safety, proxy storage collisions</li>
+	</ul>
+	<strong>Process:</strong> Read whitepaper → architecture diagram → code → threat model → fuzz → manual review → report.
+	</div>
+	
+	<div class="mt-3">
+	<strong>2. MEV Searchers & Bots</strong><br>
+	Build/search for arbitrage, liquidations, sandwich attacks.<br>
+	<strong>Components:</strong> mempool monitoring, tx simulation (eth_call), gas bidding, bundle submission (Flashbots).<br>
+	<strong>Tools:</strong> mev-geth, Flashbots relay, mev-boost, custom Rust/Go bots.<br>
+	<strong>Risk:</strong> Front-running others = ethical gray area; focus on defensive MEV or protocol protection.
+	</div>
+	
+	<div class="mt-3">
+	<strong>3. Smart-Contract Fuzzing</strong><br>
+	Property-based testing: generate random inputs, check invariants (balance conservation, no unauthorized access).<br>
+	<strong>Best tools (2026):</strong>
+	<ul class="small">
+	<li><strong>Foundry</strong> – Forge fuzz (fastest, Rust-based)</li>
+	<li><strong>Echidna</strong> – Haskell-based, excellent for invariants</li>
+	<li><strong>DappTools</strong> – Hevm symbolic + fuzz</li>
+	</ul>
+	<strong>Example invariant:</strong> totalSupply never decreases unexpectedly.
+	</div>
+	
+	<div class="mt-3">
+	<strong>4. Symbolic Execution</strong><br>
+	Explore all possible paths mathematically (no real execution).<br>
+	<strong>Tools:</strong> Manticore (Python), Mythril (symbolic + concolic), angre (advanced).<br>
+	<strong>Use cases:</strong> Find unreachable code, overflow paths, reentrancy variants.
+	</div>
+	
+	<div class="mt-3">
+	<strong>5. Formal Verification</strong><br>
+	Prove properties mathematically (no bugs in certain paths).<br>
+	<strong>Leading tools (2026):</strong>
+	<ul class="small">
+	<li><strong>Certora</strong> – CVL (Certora Verification Language), used by top protocols</li>
+	<li><strong>KEVM</strong> – K Framework semantics for EVM</li>
+	<li><strong>Scribble</strong> → MythX integration</li>
+	</ul>
+	<strong>Properties:</strong> "No unauthorized transfer", "Invariant: sum(balances) == totalSupply".
+	</div>
+	</div>
+	
+	<div class="terminal-block">
+	# Foundry fuzz example (invariant test)
+	function invariant_totalSupply() public {
+		uint256 sum = 0;
+		for (uint i = 0; i < users.length; i++) {
+			sum += token.balanceOf(users[i]);
+		}
+		assertEq(sum, token.totalSupply());
+	}
+	
+	# Run: forge test --match-test invariant_
+	</div>
+	
+	<div class="terminal-block mt-3">
+	# Echidna basic config (echidna.yaml)
+	testLimit: 100000
+	corpusDir: "./corpus"
+	filterBlacklist: false
+	</div>
+	
+	<div class="pros-cons mt-3">
+	<strong>DO:</strong> Fuzz every contract you write → aim for 100k+ executions. Join Code4rena/Immunefi audits.<br>
+	<strong>DON'T:</strong> Rely only on tools — manual review finds business logic bugs tools miss.<br>
+	<strong>Pro:</strong> You can earn $100k–$10M+ bounties or get retained by protocols.<br>
+	<strong>Con:</strong> No advanced tooling/practice = missing subtle economic/logic bugs.
+	</div>
+	
+	<div class="mt-3">
+	<a href="https://book.getfoundry.sh/forge/invariant-testing" target="_blank" class="btn btn-resource btn-sm">Foundry Invariant Testing – Start here</a>
+	<a href="https://github.com/crytic/echidna" target="_blank" class="btn btn-resource btn-sm mt-2">Echidna – Install & run</a>
+	<a href="https://www.certora.com/" target="_blank" class="btn btn-resource btn-sm mt-2">Certora – Read case studies</a>
+	<a href="https://github.com/crytic/slither/wiki/Detector-Documentation" target="_blank" class="btn btn-resource btn-sm mt-2">Slither Detectors – Learn advanced patterns</a>
+	</div>
 	</div>
 	</section>
 	
@@ -2588,10 +2680,81 @@ for port in range(1, 1025):
 	<section id="step18">
 	<div class="section-header">
 	<h2>18. Security Mindset</h2>
+	<p class="text-secondary">Technical skills alone are not enough — the best hackers think like attackers. Security mindset is about anticipating threats, questioning assumptions, modeling risks, and staying paranoid (productively). This section teaches frameworks and habits that separate elite practitioners from good technicians. Master threat modeling, attack surface reduction, adversarial simulation, and risk prioritization. Apply to every system you touch. Spend ongoing time — it's a lifelong practice. Goal: see vulnerabilities before tools do, design systems attackers hate.</p>
 	</div>
+	
 	<div class="hacker-card">
-	<p class="detailed-explain">Threat modeling (STRIDE), attack surface analysis, adversarial thinking, risk calculation. Master MITRE ATT&amp;CK matrix — map every technique you learn.</p>
-	<a href="https://attack.mitre.org/" target="_blank" class="btn btn-resource">MITRE ATT&amp;CK Navigator</a>
+	<div class="detailed-explain">
+	<p><strong>Core Frameworks & Habits</strong></p>
+	
+	<div class="mt-3">
+	<strong>Threat Modeling (STRIDE)</strong><br>
+	Systematic way to find threats:<br>
+	<ul class="small">
+	<li><strong>S</strong>poofing – Impersonation</li>
+	<li><strong>T</strong>ampering – Data modification</li>
+	<li><strong>R</strong>epudiation – Deny action</li>
+	<li><strong>I</strong>nformation Disclosure – Leak secrets</li>
+	<li><strong>D</strong>enial of Service – Disrupt availability</li>
+	<li><strong>E</strong>levation of Privilege – Gain unauthorized access</li>
+	</ul>
+	<strong>Apply:</strong> Draw DFD (Data Flow Diagram) → label trust boundaries → ask "what if attacker controls X?".
+	</div>
+	
+	<div class="mt-3">
+	<strong>Attack Surface Analysis</strong><br>
+	Identify all entry points: APIs, UIs, network ports, file inputs, third-party deps, user-supplied data.<br>
+	<strong>Reduce:</strong> Principle of least privilege, input validation everywhere, minimize exposed surface.
+	</div>
+	
+	<div class="mt-3">
+	<strong>Adversarial Thinking</strong><br>
+	Assume attacker controls: network (MITM), client (malicious browser), timing (race conditions), randomness (weak RNG).<br>
+	<strong>Questions to ask:</strong>
+	<ul class="small">
+	<li>What if input is malformed/malicious/max size?</li>
+	<li>What if third-party service is down/slow/compromised?</li>
+	<li>What if user has root/admin on their machine?</li>
+	<li>What if this runs on untrusted hardware?</li>
+	</ul>
+	</div>
+	
+	<div class="mt-3">
+	<strong>Risk Calculation & Prioritization</strong><br>
+	Likelihood × Impact = Risk.<br>
+	<strong>CVSS v4</strong> (2026 standard) – Use calculator for scoring.<br>
+	<strong>Business context:</strong> $ lost, reputation, legal (GDPR), chain halt.
+	</div>
+	
+	<div class="mt-3">
+	<strong>MITRE ATT&CK Matrix Mastery</strong><br>
+	Map every technique you learn to ATT&CK (Enterprise, Mobile, ICS).<br>
+	<strong>Use:</strong> Navigator – color-code techniques you can detect/defend/attack.<br>
+	<strong>Apply to blockchain:</strong> T1078 (Valid Accounts), T1562 (Impair Defenses), T1496 (Resource Hijacking – mining).
+	</div>
+	</div>
+	
+	<div class="terminal-block">
+	# Quick threat modeling example (text-based)
+	Asset: DeFi lending protocol
+	Threat: Flash loan attack
+	STRIDE: Tampering + Elevation of Privilege
+	Mitigation: TWAP oracle + circuit breaker
+	Risk: High (millions in funds)
+	</div>
+	
+	<div class="pros-cons mt-3">
+	<strong>DO:</strong> Threat model every contract/system you build or audit — document assumptions.<br>
+	<strong>DON'T:</strong> Assume "it's decentralized = secure" — central points (oracles, multisigs) are weak.<br>
+	<strong>Pro:</strong> You design systems with fewer blind spots, find logic bugs others miss.<br>
+	<strong>Con:</strong> No mindset = great at tools, terrible at creative/new attacks.
+	</div>
+	
+	<div class="mt-3">
+	<a href="https://attack.mitre.org/" target="_blank" class="btn btn-resource btn-sm">MITRE ATT&CK Navigator – Start mapping</a>
+	<a href="https://owasp.org/www-community/Threat_Modeling" target="_blank" class="btn btn-resource btn-sm mt-2">OWASP Threat Modeling Cheat Sheet</a>
+	<a href="https://shostack.org/resources/whitepapers/threat-modeling-what-why-how" target="_blank" class="btn btn-resource btn-sm mt-2">Adam Shostack – Threat Modeling Guide</a>
+	</div>
 	</div>
 	</section>
 	
@@ -2599,18 +2762,95 @@ for port in range(1, 1025):
 	<section id="step19">
 	<div class="section-header">
 	<h2>19. Build a Hacker Lab</h2>
+	<p class="text-secondary">A proper home lab lets you practice safely, reproduce vulnerabilities, test exploits, and simulate attacks without legal/ethical risk. This is your private playground. Build incrementally — start minimal, scale as skills grow. Hardware: modern PC (32–64GB RAM, fast SSD, good CPU). Software: VMs + containers + orchestration. Goal: self-contained environment for web, network, OS, blockchain, and exploit practice. Spend 4–8 weeks setting up & maintaining. Snapshot religiously.</p>
 	</div>
+	
 	<div class="hacker-card">
-	<ol class="detailed-explain">
-	<li>Host machine: 32GB RAM, SSD, VirtualBox + VMware Workstation</li>
-	<li>Kali Linux VM (snapshot after every tool install)</li>
-	<li>Docker + Docker Compose for vulnerable apps (DVWA, Juice Shop, Damn Vulnerable DeFi)</li>
-	<li>Minikube or k3s for Kubernetes escape practice</li>
-	<li>Metasploitable3, Windows 10/11 eval VMs, vulnerable routers in GNS3</li>
+	<div class="detailed-explain">
+	<ol class="small">
+	<li><strong>Host Machine</strong><br>
+	Minimum: 32GB RAM, 1TB NVMe SSD, 8+ core CPU, Windows/Linux/macOS.<br>
+	Recommended: 64GB RAM, 2TB SSD, dedicated GPU for cracking/mining sims.<br>
+	Use bare-metal Linux (Ubuntu/Proxmox) or Windows + WSL2 + Hyper-V/VMware.
+	</li>
+	
+	<li><strong>Virtualization Layer</strong><br>
+	<strong>VirtualBox</strong> – Free, snapshots, easy for beginners.<br>
+	<strong>VMware Workstation/Player</strong> – Better performance, nested virt.<br>
+	<strong>Proxmox VE</strong> – If dedicated server: KVM + LXC containers.<br>
+	Snapshot EVERY VM before risky experiments.
+	</li>
+	
+	<li><strong>Kali Linux VM (Offensive Base)</strong><br>
+	Latest rolling release, 8–16GB RAM allocated.<br>
+	Tools: Metasploit, Burp, Wireshark, Nmap, sqlmap, john, hashcat.<br>
+	Snapshot after every major tool install/config change.
+	</li>
+	
+	<li><strong>Docker + Docker Compose (Vulnerable Targets)</strong><br>
+	Spin up vulnerable apps in seconds — no pollution.<br>
+	Popular images:
+	<ul class="small">
+	<li>DVWA (Damn Vulnerable Web App)</li>
+	<li>Juice Shop (OWASP flagship)</li>
+	<li>Damn Vulnerable DeFi (blockchain vulns)</li>
+	<li>WebGoat, Metasploitable3</li>
+	</ul>
+	Use docker-compose for multi-service setups (web + db + redis).
+	</li>
+	
+	<li><strong>Kubernetes (Container Escape Practice)</strong><br>
+	<strong>Minikube</strong> – Single-node local cluster (easiest).<br>
+	<strong>k3s</strong> – Lightweight production-like.<br>
+	Practice: pod escape, privilege escalation, service account abuse.
+	</li>
+	
+	<li><strong>Other Essential VMs & Sims</strong><br>
+	<ul class="small">
+	<li>Windows 10/11 Enterprise Eval (180-day reset)</li>
+	<li>Metasploitable3 (multiple vulns)</li>
+	<li>Vulnerable routers/firewalls in GNS3/EVE-NG</li>
+	<li>Android emulator + rooted images (mobile pentest)</li>
+	<li>Blockchain nodes: local Ethereum (Ganache/Anvil), Bitcoin regtest</li>
+	</ul>
 	</ol>
-	<div class="terminal-block">docker run --rm -it -p 80:80 vulnerables/web-dvwa<br>docker run -p 3000:3000 bkimminich/juice-shop</div>
 	</div>
-	</section>
+	
+	<div class="terminal-block">
+	# Quick vulnerable web lab (Docker Compose recommended)
+	docker run --rm -it -p 80:80 vulnerables/web-dvwa
+	
+	# Juice Shop (modern vulnerable app)
+	docker run -d -p 3000:3000 bkimminich/juice-shop
+	
+	# Damn Vulnerable DeFi (blockchain practice)
+	git clone https://github.com/SunWeb3Sec/DeFiVulnLabs
+	cd DeFiVulnLabs
+	forge test --match-test testReentrancyExploit
+		</div>
+		
+		<div class="terminal-block mt-3">
+		# Minikube quick start (Kubernetes lab)
+		minikube start --driver=docker
+		kubectl run nginx --image=nginx
+		kubectl expose pod/nginx --port=80 --type=NodePort
+		minikube service nginx
+		</div>
+		
+		<div class="pros-cons mt-3">
+		<strong>DO:</strong> Snapshot VMs before every exploit test, malware run, or tool install.<br>
+		<strong>DON'T:</strong> Run untrusted containers/images without --read-only or user namespaces.<br>
+		<strong>Pro:</strong> Safe, reproducible, unlimited practice — no fear of bricking host.<br>
+		<strong>Con:</strong> Poor lab = limited practice, risk to host/real networks.
+		</div>
+		
+		<div class="mt-3">
+		<a href="https://www.kali.org/docs/virtualization/" target="_blank" class="btn btn-resource btn-sm">Kali VM Setup Guide</a>
+		<a href="https://book.hacktricks.xyz/linux-hardening/escape-containers" target="_blank" class="btn btn-resource btn-sm mt-2">HackTricks Container Escape Techniques</a>
+		<a href="https://github.com/vulhub/vulhub" target="_blank" class="btn btn-resource btn-sm mt-2">Vulhub – Pre-made Docker vulnerable environments</a>
+		</div>
+		</div>
+		</section>
 	
 	<!-- ======================== STEP 20 ======================== -->
 	<section id="step20">
