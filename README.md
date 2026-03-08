@@ -10,93 +10,87 @@ Before you can break a system, you must understand its skeleton. Volume 1 focuse
 - The Adversarial Mindset: In this stage, you aren't looking for code bugs; you are looking for network partitions, Eclipse attacks, and ways to disrupt the "Truth" of the ledger.
 
 ```mermaid
-graph TD
+graph LR
     %% --- Theme & Styles ---
-    classDef core fill:#003566,stroke:#ffc300,color:#fff,stroke-width:3px;
-    classDef layer fill:#1d3557,stroke:#457b9d,color:#fff,stroke-width:1px;
-    classDef component fill:#2a9d8f,stroke:#264653,color:#fff,stroke-width:1px;
-    classDef vuln fill:#6a040f,stroke:#d00000,color:#fff,stroke-width:2px;
-    classDef flow fill:#fff,stroke:#000,color:#000,font-style:italic;
+    classDef v1_core fill:#003566,stroke:#ffc300,color:#fff,stroke-width:3px;
+    classDef v1_layer fill:#1d3557,stroke:#457b9d,color:#fff,stroke-width:1px;
+    classDef v1_comp fill:#2a9d8f,stroke:#264653,color:#fff,stroke-width:1px;
+    classDef v1_vuln fill:#6a040f,stroke:#d00000,color:#fff,stroke-width:2px;
 
     %% --- Central Hub ---
-    ROOT((<b>VOLUME 1:<br/>Protocol Fundamentals</b>)):::core
+    V1_ROOT((<b>VOLUME 1:<br/>Protocol Fundamentals</b>)):::v1_core
 
-    %% --- BRANCH 1: The Node Infrastructure (Physical/Logic) ---
-    ROOT --- INFRA[<b>I. Node Anatomy</b>]:::layer
-    INFRA --> N_TYPES(Node Classifications):::component
-    N_TYPES --> FN[Full Node: Validates all rules]
-    N_TYPES --> LN[Light Node: Headers only / SPV]
-    N_TYPES --> AN[Archive Node: Full state history]
+    %% --- BRANCH 1: Node Infrastructure ---
+    V1_ROOT --- V1_INFRA[<b>I. Node Anatomy</b>]:::v1_layer
+    V1_INFRA --> V1_N_TYPES(Node Classifications):::v1_comp
+    V1_N_TYPES --> V1_FN["Full Node: Rule Validator"]
+    V1_N_TYPES --> V1_LN["Light Node: Header Only"]
+    V1_N_TYPES --> V1_AN["Archive Node: Full History"]
     
-    INFRA --> N_COMP(Internal Components):::component
-    N_COMP --> Storage[(Database: LevelDB/RocksDB)]
-    N_COMP --> EVM[Execution Environment: EVM/WASM]
-    N_COMP --> Mempool[Mempool: Pending Tx Buffer]
+    V1_INFRA --> V1_N_COMP(Internal Components):::v1_comp
+    V1_N_COMP --> V1_Store[("Database: LevelDB/RocksDB")]
+    V1_N_COMP --> V1_EVM["Execution: EVM/WASM"]
+    V1_N_COMP --> V1_MP["Mempool: Pending Tx Buffer"]
 
-    %% --- BRANCH 2: Peer-to-Peer (P2P) Network ---
-    ROOT --- P2P[<b>II. P2P & Propagation</b>]:::layer
-    P2P --> Discovery(Node Discovery):::component
-    Discovery --> Bootnodes[Hardcoded Bootnodes]
-    Discovery --> Kademlia[DHT / Peer Table]
+    %% --- BRANCH 2: P2P Network ---
+    V1_ROOT --- V1_P2P[<b>II. P2P & Propagation</b>]:::v1_layer
+    V1_P2P --> V1_Disc(Node Discovery):::v1_comp
+    V1_Disc --> V1_Boot[Hardcoded Bootnodes]
+    V1_Disc --> V1_Kad[Kademlia DHT / Peer Table]
 
-    P2P --> Prop(Gossip Protocol):::component
-    Prop --> Flood[Flooding: Tx Broadcasting]
-    Prop --> BlockProp[Block Propagation & Inventory]
+    V1_P2P --> V1_Prop(Gossip Protocol):::v1_comp
+    V1_Prop --> V1_Flood[Tx Flooding]
+    V1_Prop --> V1_BProp[Block Propagation]
     
-    P2P --- V_NET[<i>P2P Loopholes</i>]:::vuln
-    V_NET --> V_Sybil(Sybil: Fake identity flood)
-    V_NET --> V_Eclipse(Eclipse: Node isolation)
-    V_NET --> V_DoS(Network-level DDoS)
+    V1_P2P --- V1_V_NET[<i>P2P Loopholes</i>]:::v1_vuln
+    V1_V_NET --> V1_Sybil(Sybil Attacks)
+    V1_V_NET --> V1_Eclipse(Eclipse Attacks)
+    V1_V_NET --> V1_DoS(Network-level DDoS)
 
-    %% --- BRANCH 3: The Data Layer (Blocks & Chains) ---
-    ROOT --- DATA[<b>III. The Data Layer</b>]:::layer
-    DATA --> BlockHead(Block Header Metadata):::component
-    BlockHead --> PrevHash[Previous Block Hash]
-    BlockHead --> Merkle[Merkle Root: Tx Integrity]
-    BlockHead --> Nonce[Nonce / Timestamp]
+    %% --- BRANCH 3: The Data Layer ---
+    V1_ROOT --- V1_DATA[<b>III. The Data Layer</b>]:::v1_layer
+    V1_DATA --> V1_Head(Block Header):::v1_comp
+    V1_Head --> V1_PHash[Prev Block Hash]
+    V1_Head --> V1_Merk[Merkle Root]
+    V1_Head --> V1_Nonce[Nonce / Timestamp]
 
-    DATA --> TxLogic(Transaction Models):::component
-    TxLogic --> UTXO[UTXO: Bitcoin Style]
-    TxLogic --> ACC[Account Based: Ethereum Style]
+    V1_DATA --> V1_Model(Transaction Models):::v1_comp
+    V1_Model --> V1_UTXO["UTXO: Bitcoin Style"]
+    V1_Model --> V1_Acc["Account: Ethereum Style"]
     
-    DATA --- V_DATA[<i>Data Loopholes</i>]:::vuln
-    V_DATA --> V_Malleability(Signature Malleability)
-    V_DATA --> V_Replay(Transaction Replay)
+    V1_DATA --- V1_V_DATA[<i>Data Loopholes</i>]:::v1_vuln
+    V1_V_DATA --> V1_Mall(Signature Malleability)
+    V1_V_DATA --> V1_Rep(Transaction Replay)
 
-    %% --- BRANCH 4: Consensus & Finality ---
-    ROOT --- CONS[<b>IV. Consensus Mechanics</b>]:::layer
-    CONS --> Mech(Algorithms):::component
-    Mech --> PoW[Proof of Work: Hash Power]
-    Mech --> PoS[Proof of Stake: Economic Bond]
-    Mech --> BFT[pBFT / Tendermint: Voting]
+    %% --- BRANCH 4: Consensus ---
+    V1_ROOT --- V1_CONS[<b>IV. Consensus Mechanics</b>]:::v1_layer
+    V1_CONS --> V1_Mech(Algorithms):::v1_comp
+    V1_Mech --> V1_PoW[Proof of Work]
+    V1_Mech --> V1_PoS[Proof of Stake]
+    V1_Mech --> V1_BFT["BFT / Voting"]
 
-    CONS --> Final(Finality Concepts):::component
-    Final --> Prob[Probabilistic Finality]
-    Final --> Det[Deterministic Finality]
+    V1_CONS --> V1_Final(Finality):::v1_comp
+    V1_Final --> V1_Prob[Probabilistic]
+    V1_Final --> V1_Det[Deterministic]
 
-    CONS --- V_CONS[<i>Consensus Loopholes</i>]:::vuln
-    V_CONS --> V_51(51% Attack / Majority)
-    V_CONS --> V_Selfish(Selfish Mining)
-    V_CONS --> V_Long(Long Range Attacks)
+    V1_CONS --- V1_V_CONS[<i>Consensus Loopholes</i>]:::v1_vuln
+    V1_V_CONS --> V1_51(51% Attack)
+    V1_V_CONS --> V1_Self(Selfish Mining)
+    V1_V_CONS --> V1_Long(Long Range Attacks)
 
-    %% --- CROSS-FLOW: The Transaction Journey ---
-    subgraph Journey [Transaction Lifecycle]
-        T1[1. Signing: Private Key] --> T2[2. Broadcast: P2P]
-        T2 --> T3[3. Validation: Node Rules]
-        T3 --> T4[4. Mempool: Waiting]
-        T4 --> T5[5. Inclusion: Mining/Staking]
-        T5 --> T6[6. Confirmation: Immutability]
+    %% --- Transaction Lifecycle ---
+    subgraph V1_Journey [Transaction Lifecycle]
+        V1_T1[1. Signing] --> V1_T2[2. Broadcast]
+        V1_T2 --> V1_T3[3. Validation]
+        V1_T3 --> V1_T4[4. Mempool]
+        V1_T4 --> V1_T5[5. Inclusion]
+        V1_T5 --> V1_T6[6. Confirmation]
     end
 
-    %% Connecting Lifecycle to Layers
-    T2 -.-> P2P
-    T4 -.-> Mempool
-    T5 -.-> CONS
-    T6 -.-> DATA
-
-    %% Positioning
-    style ROOT fill:#ffc300,color:#000
-```
+    %% Strategic Links for Flow
+    V1_T2 -.-> V1_P2P
+    V1_T4 -.-> V1_MP
+    V1_T5 -.-> V1_CONS```
 Volume 2: The Cryptographic Vault — Keys & Identity
 
 In Web3, "Identity" is math. Volume 2 dives into the cryptographic primitives that secure every dollar on-chain. This isn't just about knowing what a private key is; it's about understanding how entropy (randomness) becomes a seed phrase, and how that seed is mathematically derived into thousands of addresses.
