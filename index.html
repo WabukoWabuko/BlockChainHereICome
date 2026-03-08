@@ -1576,23 +1576,96 @@ for port in range(1, 1025):
 	<section id="step7">
 	<div class="section-header">
 	<h2>7. Cryptography</h2>
+	<p class="text-secondary">Cryptography is the foundation of secure communication, authentication, blockchain, passwords, TLS, VPNs, digital signatures, and almost every modern security control. To break crypto (or more realistically: find implementation flaws), you must first understand how it works correctly. Never roll your own crypto — that's rule #1. This section is theory-heavy but hands-on critical. Spend 6–10 weeks. Goal: recognize bad crypto instantly, use correct primitives, understand common attacks (padding oracles, side-channels, weak keys). Blockchain security lives here too.</p>
 	</div>
+	
 	<div class="hacker-card">
 	<div class="detailed-explain">
-	<p><strong>Hashing:</strong> SHA-256, bcrypt, Argon2 (use for passwords).<br>
-	<strong>Symmetric:</strong> AES-256-GCM (best mode).<br>
-	<strong>Asymmetric:</strong> RSA (for key exchange), ECC (smaller keys, faster).<br>
-	<strong>Digital Signatures:</strong> ECDSA, Ed25519.<br>
-	<strong>Key Exchange:</strong> Diffie-Hellman, ECDH.<br>
-	<strong>Randomness:</strong> /dev/urandom vs /dev/random.</p>
+	<p><strong>Core Building Blocks – What Every Hacker Must Know</strong></p>
+	
+	<div class="mt-3">
+	<strong>1. Hashing (One-way functions)</strong><br>
+	Turns arbitrary data into fixed-size digest. Used for passwords, integrity checks, blockchain Merkle trees.<br>
+	<strong>Good algorithms (2026):</strong> SHA-256 (general), SHA-3, BLAKE3 (fast).<br>
+	<strong>Password hashing (slow & salted):</strong> Argon2id (memory-hard, best), bcrypt, scrypt, PBKDF2 (with high iterations).<br>
+	<strong>Never use:</strong> MD5, SHA-1, SHA-256 alone for passwords (fast = brute-forceable).
 	</div>
-	<div class="terminal-block">echo -n "mysecret" | openssl dgst -sha256<br>openssl enc -aes-256-cbc -salt -in file.txt -out file.enc</div>
-	<div class="pros-cons">
-	<strong>DO:</strong> Use well-audited libraries (libsodium, OpenSSL).<br>
-	<strong>DON'T:</strong> Ever implement your own crypto algorithms.
+	
+	<div class="mt-3">
+	<strong>2. Symmetric Encryption</strong><br>
+	Same key to encrypt & decrypt. Fast, used for data at rest, TLS sessions.<br>
+	<strong>Best choice:</strong> AES-256-GCM (authenticated encryption, fast, secure).<br>
+	<strong>Avoid:</strong> AES-CBC (needs padding → padding oracles), AES-ECB (patterns visible), DES/3DES (broken).<br>
+	<strong>Modes matter:</strong> GCM = confidentiality + integrity, CCM similar but slower, CTR + HMAC (manual but ok).
 	</div>
-	<a href="https://crypto101.io/" target="_blank" class="btn btn-resource">Crypto 101 — Free Book</a>
-	<a href="https://www.youtube.com/playlist?list=PLo3s4v4q3s4v4q3s4v4q3s4v4q3s4v4q3" target="_blank" class="btn btn-resource mt-2">Cryptography for Hackers (YouTube series)</a>
+	
+	<div class="mt-3">
+	<strong>3. Asymmetric Encryption / Public-Key Crypto</strong><br>
+	Public key encrypts, private decrypts (or vice-versa for signatures).<br>
+	<strong>RSA:</strong> Classic, 2048–4096 bits, used in TLS, SSH, PGP.<br>
+	<strong>ECC (Elliptic Curve):</strong> Smaller keys, faster, stronger per bit (Curve25519, secp256r1).<br>
+	<strong>Post-quantum coming:</strong> Kyber, Dilithium (NIST 2024 finalists) — start learning now.
+	</div>
+	
+	<div class="mt-3">
+	<strong>4. Digital Signatures</strong><br>
+	Proves authenticity & integrity.<br>
+	<strong>Best:</strong> Ed25519 (fast, safe), ECDSA (widely used but side-channel risks).<br>
+	<strong>Avoid:</strong> RSA-PKCS1-v1_5 (Bleichenbacher attack).
+	</div>
+	
+	<div class="mt-3">
+	<strong>5. Key Exchange / Key Agreement</strong><br>
+	Securely agree on shared secret over insecure channel.<br>
+	<strong>Classic:</strong> Diffie-Hellman (DH), ECDH (faster).<br>
+	<strong>Modern:</strong> X25519 (Curve25519 ECDH), hybrid post-quantum.
+	</div>
+	
+	<div class="mt-3">
+	<strong>6. Randomness & Nonces</strong><br>
+	Crypto security collapses without good randomness.<br>
+	<strong>Linux:</strong> /dev/urandom (recommended for most uses), /dev/random (blocks if entropy low — rarely needed).<br>
+	<strong>Never use:</strong> rand(), Math.random(), time-based seeds.<br>
+	<strong>Best:</strong> libsodium randombytes_buf(), OpenSSL RAND_bytes().
+	</div>
+	</div>
+	
+	<div class="terminal-block">
+	# Hash a password the RIGHT way (using openssl for demo – use argon2 in real code)
+	# SHA-256 (fast – only for integrity, NOT passwords!)
+	echo -n "myverysecretpassword123" | openssl dgst -sha256
+	
+	# Better: HMAC with secret key (e.g. for API tokens)
+	echo -n "message" | openssl dgst -sha256 -hmac "secretkey"
+	
+	# Encrypt file with AES-256-GCM (authenticated!)
+	openssl enc -aes-256-gcm -salt -in secret.txt -out secret.enc -pass pass:strongpass123
+	
+	# Decrypt
+	openssl enc -aes-256-gcm -d -in secret.enc -out secret.dec -pass pass:strongpass123
+	
+	# Generate strong random bytes (40 bytes hex)
+	openssl rand -hex 20
+	</div>
+	
+	<div class="terminal-block mt-3">
+	# Quick password hashing demo with argon2 (install argon2 if needed)
+	# argon2 -i -t 3 -m 19 -p 4 mypassword -r
+	# (real code would use a library)
+	</div>
+	
+	<div class="pros-cons mt-3">
+	<strong>DO:</strong> Always use audited libraries: libsodium (easiest & safest), OpenSSL (ubiquitous), cryptography (Python), ring (Rust).<br>
+	<strong>DON'T:</strong> EVER write your own AES, RSA, hash function, or random number generator — even for "learning". Use primitives correctly instead.<br>
+	<strong>Pro:</strong> You spot weak crypto in code reviews, TLS misconfigs, blockchain vulns (weak signatures, bad randomness).<br>
+	<strong>Con:</strong> Skipping deep crypto = falling for padding oracles, weak keys, replay attacks, side-channels.
+	</div>
+	
+	<div class="mt-3">
+	<a href="https://crypto101.io/" target="_blank" class="btn btn-resource btn-sm">Crypto 101 – Free excellent book (start here)</a>
+	<a href="https://latacora.micro.blog/2018/04/03/cryptographic-right-answers.html" target="_blank" class="btn btn-resource btn-sm mt-2">Latacora "Cryptographic Right Answers" (2026 updated version – cheat sheet)</a>
+	<a href="https://github.com/jedisct1/libsodium" target="_blank" class="btn btn-resource btn-sm mt-2">libsodium – The easiest secure crypto library</a>
+	</div>
 	</div>
 	</section>
 	
@@ -1600,13 +1673,77 @@ for port in range(1, 1025):
 	<section id="step8">
 	<div class="section-header">
 	<h2>8. Reverse Engineering</h2>
+	<p class="text-secondary">Reverse engineering (RE) is how you understand closed-source software, malware, firmware, mobile apps, and exploit mitigations. It's the skill that turns "black box" into "I know exactly what this binary does and how to break it". Hard but rewarding. Learn assembly first, then tools. Practice daily. Goal: read disassembly fluently, modify binaries, write patches, understand anti-RE tricks. Spend 10–16 weeks — this skill compounds forever.</p>
 	</div>
+	
 	<div class="hacker-card">
 	<div class="detailed-explain">
-	<p>Learn x86_64 and ARM assembly. Understand calling conventions (System V AMD64). Tools: Ghidra (free, powerful), IDA Pro (paid), Radare2/cutter, Binary Ninja.</p>
-	<p>Practice: crackmes.one, crackme challenges, malware samples on MalwareBazaar (safely in VM).</p>
+	<p><strong>Assembly Foundations – Start Here</strong></p>
+	<ul class="small">
+	<li><strong>x86_64 (Intel/AMD)</strong>: Most desktops/servers. Learn registers (RAX, RBX, RSP, RIP), instructions (mov, add, sub, jmp, call, cmp, test), System V AMD64 ABI calling convention.</li>
+	<li><strong>ARM64 (AArch64)</strong>: Phones, IoT, Apple Silicon. Simpler, more registers (X0–X30), different calling convention.</li>
+	<li><strong>Key concepts:</strong> Stack frames, function prologue/epilogue, control flow (conditional jumps), syscalls (syscall instruction or int 0x80).</li>
+	</ul>
+	
+	<p><strong>Tools – Which to Learn & When</strong></p>
+	<ul class="small">
+	<li><strong>Ghidra</strong> (free, NSA-made) – Decompiler + disassembler + graphing. Best free option in 2026.</li>
+	<li><strong>IDA Pro</strong> (paid) – Industry standard, excellent FLIRT signatures, scripting.</li>
+	<li><strong>Radare2 / Cutter</strong> (free, open-source) – Extremely powerful, scriptable, great for automation.</li>
+	<li><strong>Binary Ninja</strong> (paid) – Clean UI, good decompiler, Python API.</li>
+	<li><strong>Debuggers:</strong> gdb (with gef/peda/pwndbg), x64dbg (Windows), lldb.</li>
+	</ul>
+	
+	<p><strong>Practice Progression</strong></p>
+	<ol class="small">
+	<li>Crackmes.one / crackmes.de – beginner to advanced challenges</li>
+	<li>Reversing.kr, pwnable.tw (RE challenges)</li>
+	<li>Malware samples from MalwareBazaar / VX-Underground (in isolated VM!)</li>
+	<li>Firmware RE (routers, IoT) – binwalk, firmwalker</li>
+	<li>Mobile: APKTool, JADX, Frida (dynamic instrumentation)</li>
+	</ol>
+	
+	<p><strong>Common RE Goals</strong></p>
+	<ul class="small">
+	<li>Find encryption keys/hardcoded credentials</li>
+	<li>Bypass license checks / serial validation</li>
+	<li>Understand C2 communication</li>
+	<li>Patch out anti-debug tricks</li>
+	<li>Write exploits by understanding vuln functions</li>
+	</ul>
 	</div>
-	<a href="https://ghidra-sre.org/" target="_blank" class="btn btn-resource">Download Ghidra</a>
+	
+	<div class="terminal-block">
+	# Quick Ghidra setup (after download)
+	# Import binary → Analyze → See decompiled function
+	# Hotkeys: ; (comment), D (define data), C (code), G (goto address)
+	
+	# Radare2 basic workflow
+	r2 -A ./binary          # -A = analyze all
+	aaa                     # deeper analysis
+	pdf @ main              # print disassembled main function
+	VV                      # visual graph mode
+	VVV                     # visual panel mode
+	</div>
+	
+	<div class="terminal-block mt-3">
+	# Simple anti-RE trick example (time check)
+	if (time(NULL) - start > 5) { exit(0); }  // debugger slows it down → detect
+	</div>
+	
+	<div class="pros-cons mt-3">
+	<strong>DO:</strong> Reverse 1 crackme every day — start easy, read every function, rename variables, comment everything.<br>
+	<strong>DON'T:</strong> Jump straight to malware — you'll get overwhelmed. Build fundamentals first.<br>
+	<strong>Pro:</strong> You can analyze any binary, find 0-days in software, understand exploit mitigations (ASLR, CFG, DEP).<br>
+	<strong>Con:</strong> Skipping RE = blind to native code vulns, kernel drivers, firmware bugs, most mobile attacks.
+	</div>
+	
+	<div class="mt-3">
+	<a href="https://ghidra-sre.org/" target="_blank" class="btn btn-resource btn-sm">Download Ghidra – Start with the tutorial</a>
+	<a href="https://beginners.re/" target="_blank" class="btn btn-resource btn-sm mt-2">Reverse Engineering for Beginners – Free book by Dennis Yurichev</a>
+	<a href="https://crackmes.one/" target="_blank" class="btn btn-resource btn-sm mt-2">Crackmes.one – Best practice platform (filter by difficulty)</a>
+	<a href="https://malwareunicorn.org/workshops/re101.html" target="_blank" class="btn btn-resource btn-sm mt-2">Malware Unicorn RE 101 – Practical workshop</a>
+	</div>
 	</div>
 	</section>
 	
