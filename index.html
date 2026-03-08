@@ -207,69 +207,252 @@ Every single topic, sub-topic, tool, command, vulnerability, pro/con, DO/DON'T, 
 <section id="step0">
 <div class="section-header">
 <h2>0. Foundations (Before Cybersecurity)</h2>
-<p class="text-secondary">You cannot hack what you do not understand. This section is non-negotiable. Spend at least 4–6 weeks here.</p>
+<p class="text-secondary">You cannot hack what you do not understand. This section is non-negotiable. Most people want to skip straight to "hacking tools", but without this foundation everything later feels like magic — and magic is impossible to break reliably. Plan to spend 4–8 weeks here depending on your starting point. Go slow. Understand deeply.</p>
 </div>
+
 <div class="row g-4">
+
+<!-- 0.1 Hardware & OS -->
 <div class="col-md-6">
 <div class="hacker-card">
 <span class="badge-step">0.1 Hardware &amp; OS</span>
-<h5>How Computers Work • CPU, RAM, Storage</h5>
+<h5>How Computers Actually Work • CPU • RAM • Storage • Operating System</h5>
+
 <div class="detailed-explain">
-<p>The CPU is the brain: it fetches instructions from RAM, decodes them, executes them, and writes results back. This is the famous <strong>fetch-decode-execute cycle</strong>. RAM is volatile (loses data when powered off) and extremely fast. Storage (SSD/HDD) is persistent but slower.</p>
-<p>The Operating System (kernel) sits between hardware and applications. It manages memory allocation, process scheduling, file I/O, and hardware interrupts via <strong>system calls</strong>.</p>
+<p>Imagine a restaurant kitchen:</p>
+<ul>
+<li><strong>CPU (Central Processing Unit)</strong> = the chef. It is the only thing that can actually "do work". It follows instructions extremely quickly — billions of times per second.</li>
+<li><strong>RAM (Random Access Memory)</strong> = the chef's counter space. Very fast to grab ingredients from, but when the restaurant closes (computer powers off), everything on the counter disappears. Volatile = temporary.</li>
+<li><strong>Storage (SSD / HDD)</strong> = the pantry and fridge. Much slower to get things from, but the food stays there even when the restaurant is closed. Persistent = survives power-off.</li>
+</ul>
+
+<p>The CPU works in an endless loop called the <strong>fetch-decode-execute cycle</strong>:</p>
+<ol>
+<li><strong>Fetch</strong>: Get the next instruction from RAM (using the Program Counter register to know the address).</li>
+<li><strong>Decode</strong>: Figure out what the instruction means (add two numbers? jump somewhere? read from disk?).</li>
+<li><strong>Execute</strong>: Actually do it — and usually write the result somewhere (often back to RAM or a register).</li>
+<li>Repeat forever (or until the computer is turned off).</li>
+</ol>
+
+<p>The <strong>Operating System kernel</strong> is like the restaurant manager + head chef combined. It:</p>
+<ul>
+<li>Decides which program (process) gets to use the CPU right now (scheduling)</li>
+<li>Allocates RAM to programs and makes sure they don't step on each other</li>
+<li>Handles talking to hardware (disk, network card, keyboard) through drivers</li>
+<li>Provides <strong>system calls</strong> — the only safe way user programs are allowed to ask for dangerous things (open file, send network packet, allocate more memory)</li>
+</ul>
 </div>
-<div class="terminal-block"># Real-time resource monitoring<br>htop<br><br># Detailed CPU info<br>cat /proc/cpuinfo | head -30<br><br># Memory usage in human readable<br>free -h</div>
-<div class="pros-cons">
-<strong>DO:</strong> Draw the fetch-decode-execute cycle daily until you can explain it in your sleep.<br>
-<strong>DON'T:</strong> Ever think anything in computing is "magic". Everything is electrons and logic gates.<br>
-<strong>Pro:</strong> This knowledge makes every exploit make sense.<br>
-<strong>Con of skipping:</strong> You will never understand why buffer overflows or race conditions happen.
+
+<div class="terminal-block">
+# See live CPU, memory, swap, processes (very useful during pentesting)
+htop
+# press F2 → Setup → Meters → add "Disk IO" or "Network" if you want
+
+# See detailed CPU model, cores, cache sizes, clock speed
+cat /proc/cpuinfo | head -n 35
+
+# Memory: total, used, free, buffers/cache, available (most important number)
+free -h
+
+# Swap usage — high swap usually means you're running out of RAM
+swapon --show
+free -h
+
+# Quick summary of system + kernel version
+uname -a
+cat /etc/os-release
 </div>
-<a href="https://www.coursera.org/learn/computers-and-the-internet" target="_blank" class="btn btn-resource btn-sm">Google IT Fundamentals (free)</a>
-<a href="https://www.youtube.com/playlist?list=PL8dPuuaLjXtNlUrzyH5r6jN9ulqJ8cA0o" target="_blank" class="btn btn-resource btn-sm mt-2">Crash Course Computer Science (YouTube)</a>
+
+<div class="pros-cons mt-3">
+<strong>DO:</strong> Every day for two weeks, draw the fetch-decode-execute cycle from memory on paper — label each step and where registers & RAM are involved.<br>
+<strong>DON'T:</strong> Ever accept "it just works" explanations again. Force yourself to trace where every piece of data actually lives.<br>
+<strong>Biggest benefit:</strong> Buffer overflows, race conditions, use-after-free, kernel panics — they all stop being mysterious.<br>
+<strong>Biggest danger of skipping:</strong> You become the person who runs Metasploit scripts without understanding why they sometimes fail.
+</div>
+
+<div class="mt-3">
+<a href="https://www.coursera.org/learn/computers-and-the-internet" target="_blank" class="btn btn-resource btn-sm">Google IT Support → Computer Fundamentals (free to audit)</a>
+<a href="https://www.youtube.com/playlist?list=PL8dPuuaLjXtNlUrzyH5r6jN9ulqJ8cA0o" target="_blank" class="btn btn-resource btn-sm mt-2">Crash Course Computer Science – full playlist (excellent visuals)</a>
+<a href="https://www.nand2tetris.org/" target="_blank" class="btn btn-resource btn-sm mt-2">Build a Modern Computer from First Principles (Nand2Tetris) – the gold standard deep understanding course</a>
 </div>
 </div>
+</div>
+
+<!-- 0.2 Filesystems & Binary -->
 <div class="col-md-6">
 <div class="hacker-card">
 <span class="badge-step">0.2 Filesystems &amp; Binary</span>
-<h5>Binary, Hexadecimal, Filesystems</h5>
+<h5>Binary • Hexadecimal • Endianness • Filesystems (ext4, NTFS, etc.)</h5>
+
 <div class="detailed-explain">
-<p>Everything is binary (base-2). Hexadecimal (base-16) is just a human-friendly way to read binary — each hex digit = 4 bits. Filesystems (ext4, NTFS, APFS) organize data into blocks, inodes, directories. Understand FAT32 vs exFAT vs NTFS differences.</p>
-<p>Learn endianness (little-endian on x86) — this matters in exploit development.</p>
+<p>All data in a computer is ultimately just 0s and 1s (binary). Humans find long binary strings hard to read, so we group them:</p>
+<ul>
+<li>4 bits = 1 hexadecimal digit (0–9, A–F)</li>
+<li>8 bits = 1 byte = 2 hex digits</li>
+<li>32 bits = 4 bytes = 8 hex digits (common for memory addresses on 32-bit systems)</li>
+</ul>
+
+<p><strong>Endianness</strong> = which byte goes first when storing numbers bigger than 1 byte.</p>
+<ul>
+<li><strong>Little-endian</strong> (most x86/x64 computers): least significant byte first → 0x1234 is stored as bytes [34 12]</li>
+<li><strong>Big-endian</strong> (network protocols, some old architectures): most significant byte first → 0x1234 is stored as [12 34]</li>
+</ul>
+<p>→ This is why shellcode and memory reading often look "backwards" on Intel/AMD machines.</p>
+
+<p><strong>Filesystems</strong> decide how files are organized on disk:</p>
+<ul>
+<li><strong>FAT32</strong>: very old, max 4 GB file size, no permissions — USB drives</li>
+<li><strong>exFAT</strong>: better for large files, still no real permissions — modern USB/SD cards</li>
+<li><strong>NTFS</strong>: Windows default — supports permissions, encryption, compression, large files</li>
+<li><strong>ext4</strong>: most common on Linux — journaling, large files, good performance</li>
+<li><strong>APFS</strong>: macOS modern filesystem — snapshots, encryption by default</li>
+</ul>
+
+<p>Understanding filesystems helps when you recover deleted files, analyze forensic images, or exploit filesystem-specific bugs.</p>
 </div>
-<div class="terminal-block">echo -n "Hacker" | xxd<br>echo -n "Hacker" | xxd -b<br><br># Convert hex to ASCII<br>echo "48 65 6c 6c 6f" | xxd -r -p</div>
-<div class="pros-cons">
-<strong>DO:</strong> Practice converting binary ↔ hex ↔ decimal manually.<br>
-<strong>DON'T:</strong> Rely only on calculators — muscle memory is key.<br>
-<strong>Pro:</strong> You will instantly read memory dumps and shellcode.
+
+<div class="terminal-block">
+# Show string "Hacker" as hex and binary
+echo -n "Hacker" | xxd
+echo -n "Hacker" | xxd -b
+
+# Convert hex bytes back to text (classic way to read memory dumps)
+echo "48 65 6c 6c 6f 20 57 6f 72 6c 64" | xxd -r -p
+
+# Show first 256 bytes of a file in nice format
+xxd -l 256 /bin/ls | less
+
+# See current filesystem type of mounted partitions
+df -T
+lsblk -f
+</div>
+
+<div class="pros-cons mt-3">
+<strong>DO:</strong> For one week, every time you see a hex number (memory address, hash, color code), manually convert the first few digits to binary in your head.<br>
+<strong>DON'T:</strong> Depend forever on online converters — you need instant recognition.<br>
+<strong>Huge benefit:</strong> You can read raw packet captures, memory dumps, shellcode, and binary file headers without tools.<br>
+<strong>Danger of skipping:</strong> You'll be copy-pasting exploit code forever without understanding why it works or fails.
 </div>
 </div>
 </div>
+
+<!-- 0.3 Command Line & VMs -->
 <div class="col-md-6">
 <div class="hacker-card">
 <span class="badge-step">0.3 Command Line &amp; VMs</span>
-<h5>Command Line Basics + Virtual Machines</h5>
+<h5>Command Line Mastery + Virtual Machines (Isolation & Safety)</h5>
+
 <div class="detailed-explain">
-<p>Master: ls, cd, pwd, mkdir, rm, cp, mv, grep, find, sed, awk, chmod, chown, sudo, ps, top, kill, df, du, tar, ssh, scp.</p>
-<p>VirtualBox/VMware lets you snapshot clean states. Essential for safe malware/reverse engineering testing.</p>
+<p>The terminal is your primary weapon. GUI tools are nice, but real power lives in the shell.</p>
+<p>Essential everyday commands (memorize these):</p>
+<ul>
+<li>Navigation: <code>pwd</code> • <code>cd</code> • <code>ls -la</code> • <code>tree -L 2</code></li>
+<li>File ops: <code>touch</code> • <code>mkdir -p</code> • <code>cp -r</code> • <code>mv</code> • <code>rm -rf</code> (careful!)</li>
+<li>Search &amp; view: <code>find / -name "*.conf" 2>/dev/null</code> • <code>grep -r "password" /etc</code> • <code>less</code> • <code>cat</code> • <code>head -n20</code> • <code>tail -f</code></li>
+<li>Text processing: <code>cut -d: -f1 /etc/passwd</code> • <code>sort -u</code> • <code>wc -l</code> • <code>sed 's/old/new/g'</code> • <code>awk '{print $1}'</code></li>
+<li>Permissions: <code>chmod 755 script.sh</code> • <code>chmod u+s binary</code> (SUID) • <code>chown root:root file</code></li>
+<li>Processes: <code>ps auxf</code> • <code>top / htop</code> • <code>kill -9 PID</code></li>
+<li>Network: <code>ss -tuln</code> • <code>ip a</code> • <code>ping -c4</code> • <code>curl ifconfig.me</code></li>
+</ul>
+
+<p><strong>Virtual Machines</strong> give you disposable, snapshot-able environments.</p>
+<ul>
+<li>Run malware? Snapshot first.</li>
+<li>Test exploit? Revert when done.</li>
+<li>Practice privilege escalation? No risk to host.</li>
+</ul>
 </div>
-<div class="terminal-block"># Search recursively for files containing "password"<br>grep -r "password" /etc 2&gt;/dev/null<br><br># Create and restore snapshot in VirtualBox<br>vboxmanage snapshot take "clean-kali"<br>vboxmanage snapshot restore "clean-kali"</div>
-<a href="https://linuxjourney.com/" target="_blank" class="btn btn-resource btn-sm">Linux Journey (free interactive)</a>
+
+<div class="terminal-block">
+# Find every file containing "password" anywhere under /etc (ignore permission errors)
+grep -rI "password" /etc 2>/dev/null
+
+# Find all SUID binaries (potential privilege escalation vectors)
+find / -perm -4000 -type f 2>/dev/null
+
+# Create a named snapshot in VirtualBox from command line
+vboxmanage snapshot "Kali-VM" take "Before-metasploit-install" --description "Clean state before installing extra tools"
+
+# List snapshots
+vboxmanage snapshot "Kali-VM" list
+
+# Revert to clean state
+vboxmanage snapshot "Kali-VM" restore "Before-metasploit-install"
+</div>
+
+<div class="pros-cons mt-3">
+<strong>DO:</strong> For 30 days use ONLY terminal for file operations — no mouse clicks in file manager.<br>
+<strong>DON'T:</strong> Memorize commands without understanding flags (man ls, man grep, etc.).<br>
+<strong>Pro:</strong> Speed ×10, automation becomes natural, you see the real structure of Linux.<br>
+<strong>Con of weak CLI:</strong> You'll always be slow and dependent on GUIs that don't exist on servers.
+</div>
+
+<a href="https://linuxjourney.com/" target="_blank" class="btn btn-resource btn-sm">Linux Journey – excellent interactive beginner→intermediate</a>
+<a href="https://tldr.sh/" target="_blank" class="btn btn-resource btn-sm mt-2">tldr – community maintained quick examples for every command</a>
 </div>
 </div>
+
+<!-- 0.4 Containers -->
 <div class="col-md-6">
 <div class="hacker-card">
 <span class="badge-step">0.4 Containers</span>
-<h5>Docker &amp; Containers (vs VMs)</h5>
+<h5>Docker &amp; Containers (vs full Virtual Machines)</h5>
+
 <div class="detailed-explain">
-<p>Containers share the host kernel (much lighter than VMs). Docker uses namespaces and cgroups for isolation. Learn Dockerfile, docker-compose, volumes, networks, and Docker Swarm/Kubernetes basics.</p>
-<p>Why hackers love it: spin up vulnerable apps in seconds without polluting your host.</p>
+<p><strong>VMs</strong> run a complete guest OS → heavy (1–3 GB RAM per VM), slow startup, full isolation.</p>
+<p><strong>Containers</strong> share the host kernel → very light (50–400 MB), start in <1 second, process-level isolation via namespaces + cgroups.</p>
+
+<p>Docker advantages for security people:</p>
+<ul>
+<li>Run 10 vulnerable web apps at once with almost no resource cost</li>
+<li>Throw away environment instantly (docker rm -f)</li>
+<li>Reproducible labs with docker-compose.yml files</li>
+<li>Test exploits in isolated network namespaces</li>
+</ul>
+
+<p>Key concepts to master:</p>
+<ul>
+<li><strong>Image</strong> vs <strong>Container</strong> (image = blueprint, container = running instance)</li>
+<li><strong>Dockerfile</strong> – how to build your own images</li>
+<li><strong>docker-compose</strong> – multi-container apps (web + db + cache)</li>
+<li><strong>Volumes</strong> – persistent data</li>
+<li><strong>Networks</strong> – bridge, host, none</li>
+</ul>
 </div>
-<div class="terminal-block">docker run -d --name kali -p 8080:80 kalilinux/kali-rolling<br>docker exec -it kali bash<br><br># Docker compose example for vulnerable lab<br>docker-compose up -d</div>
-<a href="https://docs.docker.com/get-started/" target="_blank" class="btn btn-resource btn-sm">Official Docker Tutorial</a>
-<a href="https://github.com/docker/awesome-compose" target="_blank" class="btn btn-resource btn-sm mt-2">Awesome Docker Compose examples</a>
+
+<div class="terminal-block">
+# Run Kali Linux container and map port 80 → 8080 on host
+docker run -d --name my-kali -p 8080:80 kalilinux/kali-rolling
+
+# Get inside running container
+docker exec -it my-kali bash
+
+# See running containers, ports, status
+docker ps -a
+
+# Stop and remove container (disposable mindset)
+docker stop my-kali &amp;&amp; docker rm my-kali
+
+# Example: quick vulnerable web app lab
+docker run -d -p 80:80 vulnerables/web-dvwa
+docker run -d -p 3000:3000 bkimminich/juice-shop
+</div>
+
+<div class="pros-cons mt-3">
+<strong>DO:</strong> Use containers for EVERY vulnerable app / tool test — never install directly on host or VM unless necessary.<br>
+<strong>DON'T:</strong> Run untrusted containers with --privileged or -v /:/host (gives container full host access).<br>
+<strong>Biggest benefit:</strong> Clean, fast, reproducible environments — essential for serious pentesting and exploit dev.<br>
+<strong>Danger:</strong> Running random Docker images from internet without checking = potential backdoor on your machine.
+</div>
+
+<div class="mt-3">
+<a href="https://docs.docker.com/get-started/" target="_blank" class="btn btn-resource btn-sm">Official Docker Get Started (very good)</a>
+<a href="https://github.com/docker/awesome-compose" target="_blank" class="btn btn-resource btn-sm mt-2">Awesome Docker Compose — real-world examples</a>
+<a href="https://container.training/" target="_blank" class="btn btn-resource btn-sm mt-2">Container Training – excellent free deep-dive slides & labs</a>
 </div>
 </div>
+</div>
+
 </div>
 </section>
 
