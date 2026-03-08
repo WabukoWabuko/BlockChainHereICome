@@ -87,6 +87,7 @@ graph TD
 
     %% Positioning
     style ROOT fill:#ffc300,color:#000
+```
 
 ```mermaid
 graph LR
@@ -178,5 +179,6 @@ graph LR
     V2_MpcA --> V2_M2[Key Sharding]
 
     V2_ADV --- V2_V_ADV[<i>Advanced Loopholes</i>]:::v2_vuln
+```
     V2_V_ADV --> V2_A_ZkpF(ZKP Soundness Error)
     V2_V_ADV --> V2_A_Coll(Participant Collusion)
